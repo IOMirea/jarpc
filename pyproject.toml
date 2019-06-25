@@ -1,0 +1,4 @@
+[tool.black]
+target-version = ['py37']
+line-length = 79
+skip-numeric-underscore-normalization = true
