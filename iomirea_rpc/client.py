@@ -24,6 +24,7 @@ from typing import Union, Dict, Any, Tuple, List
 
 import aioredis
 
+from .response import Response
 from .log import rpc_log
 
 
@@ -37,7 +38,7 @@ class Client:
         self._resp_address = f"{self._call_address}-response"
         self._loop = loop
 
-        self._responses: Dict[str, Any] = {}
+        self._responses: Dict[str, List[Response]] = {}
 
     async def run(
         self, redis_address: Union[Tuple[str, str], str], **kwargs: Any
@@ -53,30 +54,31 @@ class Client:
 
     async def _parse_payload(
         self, payload: Dict[str, Any]
-    ) -> Tuple[str, Dict[str, Any]]:
-        return (payload["a"], payload.get("d", {}))
+    ) -> Tuple[str, str, Dict[str, Any]]:
+        return (payload["n"], payload["a"], payload.get("d", {}))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
                 payload = json.loads(msg)
 
-                address, data = await self._parse_payload(payload)
+                node, address, data = await self._parse_payload(payload)
             except Exception as e:
                 self._log(
-                    f"error parsing response: {e.__class__.__name__}: {e}"
+                    f"error parsing response from node {node}: {e.__class__.__name__}: {e}"
                 )
                 continue
 
             if address not in self._responses:
-                self._log(f"ignoring response to {address}")
+                self._log(f"ignoring response from node {node}")
                 continue
 
-            self._responses[address].append(data)
+            response = Response(node, data)
+            self._responses[address].append(response)
 
     async def call(
         self, index: int, data: Dict[str, Any] = {}, timeout: int = -1
-    ) -> List[Any]:
+    ) -> List[Response]:
         address = uuid.uuid4().hex
 
         payload = {"c": index, "a": address, "d": data}

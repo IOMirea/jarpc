@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import json
+import uuid
 import asyncio
 
 from typing import Union, Dict, Any, Tuple, Callable, Awaitable
@@ -34,10 +35,13 @@ class Server:
         self,
         channel_name: str,
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop(),
+        node: str = uuid.uuid4().hex,
     ):
         self._call_address = f"rpc:{channel_name}"
         self._resp_address = f"{self._call_address}-response"
         self._loop = loop
+
+        self.node = node
 
         self._commands: Dict[int, _CommandType] = {}
 
@@ -95,7 +99,7 @@ class Server:
 
     async def respond(self, address: str, data: Any) -> None:
         await self._resp_conn.publish_json(
-            self._resp_address, {"a": address, "d": data}
+            self._resp_address, {"n": self.node, "a": address, "d": data}
         )
 
     def _log(self, text: str) -> None:
