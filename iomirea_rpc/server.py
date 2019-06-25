@@ -27,6 +27,8 @@ import aioredis
 
 _CommandType = Callable[["Server", str, Any], Awaitable[None]]
 
+logging.basicConfig(format='%(levelname)s :: %(asctime)s :: %(name)s :: %(message)s', level=logging.INFO)
+
 
 class Server:
     def __init__(
@@ -40,7 +42,7 @@ class Server:
 
         self._commands: Dict[int, _CommandType] = {}
 
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(f"RPC-Server - {channel_name}")
 
     def register_command(self, index: int, fn: _CommandType) -> int:
         if index in self._commands:
