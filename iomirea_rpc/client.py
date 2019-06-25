@@ -20,11 +20,11 @@ import json
 import uuid
 import asyncio
 
+import logging
+
 from typing import Union, Dict, Any, Tuple, List
 
 import aioredis
-
-from .log import rpc_log
 
 
 class Client:
@@ -38,6 +38,8 @@ class Client:
         self._loop = loop
 
         self._responses: Dict[str, Any] = {}
+        
+        self._logger = logging.getLogger(__name__)
 
     async def run(
         self, redis_address: Union[Tuple[str, str], str], **kwargs: Any
@@ -48,8 +50,8 @@ class Client:
         channels = await self._resp_conn.subscribe(self._resp_address)
         self._loop.create_task(self._handler(channels[0]))
 
-        self._log(f"listening: {self._resp_address}")
-        self._log(f"calling: {self._call_address}")
+        self._logger.info(f"listening: {self._resp_address}")
+        self._logger.info(f"calling: {self._call_address}")
 
     async def _parse_payload(
         self, payload: Dict[str, Any]
@@ -63,13 +65,13 @@ class Client:
 
                 address, data = await self._parse_payload(payload)
             except Exception as e:
-                self._log(
+                self._logger.error(
                     f"error parsing response: {e.__class__.__name__}: {e}"
                 )
                 continue
 
             if address not in self._responses:
-                self._log(f"ignoring response to {address}")
+                self._logger.info(f"ignoring response to {address}")
                 continue
 
             self._responses[address].append(data)
@@ -81,7 +83,7 @@ class Client:
 
         payload = {"c": index, "a": address, "d": data}
 
-        self._log(f"sending command {index}")
+        self._logger.info(f"sending command {index}")
 
         await self._call_conn.publish_json(self._call_address, payload)
 
@@ -93,6 +95,3 @@ class Client:
         await asyncio.sleep(timeout)
 
         return self._responses.pop(address)
-
-    def _log(self, text: str) -> None:
-        rpc_log(text, prefix="client")
