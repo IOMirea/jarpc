@@ -18,12 +18,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
 import asyncio
+import logging
 
 from typing import Union, Dict, Any, Tuple, Callable, Awaitable
 
 import aioredis
-
-from .log import rpc_log
 
 
 _CommandType = Callable[["Server", str, Any], Awaitable[None]]
@@ -40,6 +39,8 @@ class Server:
         self._loop = loop
 
         self._commands: Dict[int, _CommandType] = {}
+
+        self._logger = logging.getLogger(__name__)
 
     def register_command(self, index: int, fn: _CommandType) -> int:
         if index in self._commands:
@@ -58,8 +59,8 @@ class Server:
         channels = await self._call_conn.subscribe(self._call_address)
         self._loop.create_task(self._handler(channels[0]))
 
-        self._log(f"listening: {self._call_address}")
-        self._log(f"responding: {self._resp_address}")
+        self._logger.info(f"listening: {self._call_address}")
+        self._logger.info(f"responding: {self._resp_address}")
 
     async def _parse_payload(
         self, payload: Dict[str, Any]
@@ -73,23 +74,23 @@ class Server:
 
                 command, address, data = await self._parse_payload(payload)
             except Exception as e:
-                self._log(
+                self._logger.error(
                     f"error parsing command: {e.__class__.__name__}: {e}"
                 )
                 continue
 
-            self._log(f"recieved command {command}")
+            self._logger.info(f"recieved command {command}")
 
             fn = self._commands.get(command)
             if fn is None:
-                self._log(f"unknown command {command}")
+                self._logger.warning(f"unknown command {command}")
                 continue
 
             try:
                 # kwargs typing issue
                 await fn(self, address, **data)  # type: ignore
             except Exception as e:
-                self._log(
+                self._logger.error(
                     f"error calling command {command}: {e.__class__.__name__}: {e}"
                 )
 
