@@ -19,13 +19,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 import uuid
 import asyncio
+import logging
 
 from typing import Union, Dict, Any, Tuple, List
 
 import aioredis
 
 from .response import Response
-from .log import rpc_log
+
+logging.basicConfig(format='%(levelname)s :: %(asctime)s :: %(name)s :: %(message)s', level=logging.INFO)
 
 
 class Client:
@@ -40,6 +42,8 @@ class Client:
 
         self._responses: Dict[str, List[Response]] = {}
 
+        self._logger = logging.getLogger(channel_name)
+
     async def run(
         self, redis_address: Union[Tuple[str, str], str], **kwargs: Any
     ) -> None:
@@ -49,8 +53,8 @@ class Client:
         channels = await self._resp_conn.subscribe(self._resp_address)
         self._loop.create_task(self._handler(channels[0]))
 
-        self._log(f"listening: {self._resp_address}")
-        self._log(f"calling: {self._call_address}")
+        self._logger.info(f"listening: {self._resp_address}")
+        self._logger.info(f"calling: {self._call_address}")
 
     async def _parse_payload(
         self, payload: Dict[str, Any]
@@ -64,13 +68,13 @@ class Client:
 
                 node, address, data = await self._parse_payload(payload)
             except Exception as e:
-                self._log(
+                self._logger.error(
                     f"error parsing response from node {node}: {e.__class__.__name__}: {e}"
                 )
                 continue
 
             if address not in self._responses:
-                self._log(f"ignoring response from node {node}")
+                self._logger.info(f"ignoring response from node {node}")
                 continue
 
             response = Response(node, data)
@@ -83,7 +87,7 @@ class Client:
 
         payload = {"c": index, "a": address, "d": data}
 
-        self._log(f"sending command {index}")
+        self._logger.info(f"sending command {index}")
 
         await self._call_conn.publish_json(self._call_address, payload)
 
