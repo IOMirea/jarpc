@@ -21,9 +21,9 @@ setuptools.setup(
     install_requires=requirements,
     python_requires=">=3.5.3",
     packages=setuptools.find_packages(),
+    license="GPLv3",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
 )
