@@ -42,7 +42,7 @@ class Client:
 
         self._responses: Dict[str, List[Response]] = {}
 
-        self._logger = logging.getLogger(channel_name)
+        self._logger = logging.getLogger(f"RPC-Client - {channel_name}")
 
     async def run(
         self, redis_address: Union[Tuple[str, str], str], **kwargs: Any
