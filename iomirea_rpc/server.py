@@ -54,7 +54,7 @@ class Server:
         return index
 
     async def run(
-        self, redis_address: Union[Tuple[str, str], str], **kwargs: Any
+        self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
         self._call_conn = await aioredis.create_redis(redis_address, **kwargs)
         self._resp_conn = await aioredis.create_redis(redis_address, **kwargs)
