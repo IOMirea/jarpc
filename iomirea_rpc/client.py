@@ -85,18 +85,21 @@ class Client:
     async def call(
         self, index: int, data: Dict[str, Any] = {}, timeout: int = -1
     ) -> List[Response]:
+        # TODO: async generator
+
         address = uuid.uuid4().hex
 
         payload = {"c": index, "a": address, "d": data}
 
         self._log(f"sending command {index}")
 
+        if timeout != -1:
+            self._responses[address] = []  # register listener
+
         await self._call_conn.publish_json(self._call_address, payload)
 
         if timeout == -1:
             return []
-
-        self._responses[address] = []  # register listener
 
         await asyncio.sleep(timeout)
 
