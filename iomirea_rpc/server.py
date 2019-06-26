@@ -62,6 +62,7 @@ class Server:
         channels = await self._call_conn.subscribe(self._call_address)
         self._loop.create_task(self._handler(channels[0]))
 
+        self._log(f"running on node {self.node}")
         self._log(f"listening: {self._call_address}")
         self._log(f"responding: {self._resp_address}")
 
