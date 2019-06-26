@@ -21,6 +21,9 @@ async def call_commands(client: Client) -> None:
     # wait for late ping response
     await asyncio.sleep(2)
 
+    # exit
+    client.close()
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

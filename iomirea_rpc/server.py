@@ -117,3 +117,6 @@ class Server:
 
     def _log(self, text: str) -> None:
         rpc_log(text, prefix="server")
+
+    def __repr__(self) -> str:
+        return f"<Server call_address={self._call_address} resp_addrss={self._resp_address} node={self.node}>"
