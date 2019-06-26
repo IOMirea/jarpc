@@ -36,21 +36,27 @@ class Client:
     ):
         self._call_address = f"rpc:{channel_name}"
         self._resp_address = f"{self._call_address}-response"
-        self._loop = loop
+
+        self.loop = loop
 
         self._responses: Dict[str, List[Response]] = {}
 
     async def run(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
-        self._call_conn = await aioredis.create_redis(redis_address, **kwargs)
-        self._resp_conn = await aioredis.create_redis(redis_address, **kwargs)
+        self._call_conn = await aioredis.create_redis(
+            redis_address, loop=self.loop, **kwargs
+        )
+        self._resp_conn = await aioredis.create_redis(
+            redis_address, loop=self.loop, **kwargs
+        )
 
         channels = await self._resp_conn.subscribe(self._resp_address)
-        self._loop.create_task(self._handler(channels[0]))
 
         self._log(f"listening: {self._resp_address}")
         self._log(f"calling: {self._call_address}")
+
+        await self._handler(channels[0])
 
     async def _parse_payload(
         self, payload: Dict[str, Any]
@@ -95,6 +101,12 @@ class Client:
         await asyncio.sleep(timeout)
 
         return self._responses.pop(address)
+
+    def close(self) -> None:
+        self._log("closing connections")
+
+        self._call_conn.close()
+        self._resp_conn.close()
 
     def _log(self, text: str) -> None:
         rpc_log(text, prefix="client")

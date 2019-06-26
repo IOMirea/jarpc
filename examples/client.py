@@ -2,20 +2,24 @@
 
 import asyncio
 
-from iomirea_rpc import Client, Server
+from iomirea_rpc import Client
 
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
 
-async def call_ping(client: Client) -> None:
-    # wait for server to start
+async def call_commands(client: Client) -> None:
+    # wait for client to establish connection
     await asyncio.sleep(1)
 
-    data = {"message": input("Enter message to send or leave blank: ")}
+    ping_data = {"message": input("Enter message to send or leave blank: ")}
 
-    print("Ping responses:", await client.call(0, data, timeout=1))
+    print("Calling ping:", await client.call(0, ping_data, timeout=1))
+    print("Calling late ping:", await client.call(1, timeout=1))
+
+    # wait for late ping response
+    await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
@@ -23,6 +27,5 @@ if __name__ == "__main__":
 
     client = Client("example", loop=loop)
 
-    loop.create_task(client.run((REDIS_HOST, REDIS_PORT)))
-    loop.create_task(call_ping(client))
-    loop.run_forever()
+    loop.create_task(call_commands(client))
+    loop.run_until_complete(client.run((REDIS_HOST, REDIS_PORT)))
