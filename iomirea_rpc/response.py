@@ -16,19 +16,35 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Dict
+
+from .constants import StatusCode
 
 
 class Response:
 
-    __slots__ = ("node", "data")
+    __slots__ = ("status", "node", "data", "_address")
 
-    def __init__(self, node: str, data: Any):
+    def __init__(self, status: StatusCode, node: str, data: Any, address: str):
+        self.status = status
         self.node = node
         self.data = data
+
+        self._address = address
+
+    @classmethod
+    def from_json(cls, payload: Dict[str, Any]) -> Response:
+        return cls(
+            status=StatusCode(payload["s"]),
+            node=payload["n"],
+            data=payload.get("d", {}),
+            address=payload["a"],
+        )
 
     def __str__(self) -> str:
         return str(self.data)
 
     def __repr__(self) -> str:
-        return f"<Response node={self.node} data={self.data}>"
+        return f"<Response status={self.status} node={self.node} data={self.data}>"

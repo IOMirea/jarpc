@@ -16,6 +16,12 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .server import Server  # noqa:F401
-from .client import Client  # noqa:F401
-from .constants import StatusCode  # noqa:F401
+from enum import Enum
+
+
+class StatusCode(Enum):
+    success = 0
+    bad_format = 1
+    unknown_command = 2
+    bad_params = 3
+    internal_error = 4

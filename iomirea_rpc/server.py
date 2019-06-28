@@ -25,11 +25,14 @@ from typing import Union, Dict, Any, Tuple
 import aioredis
 
 from .log import rpc_log
+from .constants import StatusCode
 
 
 # TODO: find a solution to fix typing
 _CommandType = Any
-# _CommandType = Callable[["Server", str, Any], Awaitable[None]]
+# _CommandType = Callable[["Server", str, Any], Awaitable[Any]]
+
+NoValue = object()
 
 
 class Server:
@@ -54,6 +57,12 @@ class Server:
         self._commands[index] = fn
 
         return index
+
+    def remove_command(self, index: int) -> _CommandType:
+        if index not in self._commands:
+            raise ValueError(f"Command with index {index} is not registered")
+
+        return self._commands.pop(index)
 
     async def run(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
@@ -83,31 +92,65 @@ class Server:
             try:
                 payload = json.loads(msg)
 
-                command, address, data = await self._parse_payload(payload)
+                command_index, address, data = await self._parse_payload(
+                    payload
+                )
             except Exception as e:
                 self._log(
                     f"error parsing command: {e.__class__.__name__}: {e}"
                 )
+
+                # address is unavailable
+                # await self._respond(address, StatusCode.bad_format)
                 continue
 
-            self._log(f"recieved command {command}")
+            self._log(f"recieved command {command_index}")
 
-            fn = self._commands.get(command)
+            fn = self._commands.get(command_index)
             if fn is None:
-                self._log(f"unknown command {command}")
+                self._log(f"unknown command {command_index}")
+
+                await self._respond(StatusCode.unknown_command, address)
+
                 continue
 
             try:
-                await fn(self, address, **data)
+                command = fn(self, address, **data)
+            except TypeError as e:
+                self._log(f"bad arguments given to {command_index}: {e}")
+
+                await self._respond(StatusCode.bad_params, address, str(e))
+
+                continue
+
+            try:
+                command_result = await command
             except Exception as e:
                 self._log(
-                    f"error calling command {command}: {e.__class__.__name__}: {e}"
+                    f"error calling command {command_index}: {e.__class__.__name__}: {e}"
                 )
 
+                await self._respond(StatusCode.internal_error, address, str(e))
+
+                continue
+
+            if command_result is NoValue:
+                return
+
+            await self.respond(address, command_result)
+
+    async def _respond(
+        self, status: StatusCode, address: str, data: Any = NoValue
+    ) -> None:
+        response = {"s": status.value, "n": self.node, "a": address}
+
+        if data is not NoValue:
+            response["d"] = data
+
+        await self._resp_conn.publish_json(self._resp_address, response)
+
     async def respond(self, address: str, data: Any) -> None:
-        await self._resp_conn.publish_json(
-            self._resp_address, {"n": self.node, "a": address, "d": data}
-        )
+        await self._respond(StatusCode.success, address, data)
 
     def close(self) -> None:
         self._log("closing connections")

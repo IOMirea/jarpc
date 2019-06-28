@@ -58,29 +58,21 @@ class Client:
 
         await self._handler(channels[0])
 
-    async def _parse_payload(
-        self, payload: Dict[str, Any]
-    ) -> Tuple[str, str, Dict[str, Any]]:
-        return (payload["n"], payload["a"], payload.get("d", {}))
-
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                payload = json.loads(msg)
-
-                node, address, data = await self._parse_payload(payload)
+                response = Response.from_json(json.loads(msg))
             except Exception as e:
                 self._log(
-                    f"error parsing response from node {node}: {e.__class__.__name__}: {e}"
+                    f"error parsing response: {e.__class__.__name__}: {e}"
                 )
                 continue
 
-            if address not in self._responses:
-                self._log(f"ignoring response from node {node}")
+            if response._address not in self._responses:
+                self._log(f"ignoring response from node {response.node}")
                 continue
 
-            response = Response(node, data)
-            self._responses[address].append(response)
+            self._responses[response._address].append(response)
 
     async def call(
         self, index: int, data: Dict[str, Any] = {}, timeout: int = -1
@@ -96,7 +88,10 @@ class Client:
         if timeout != -1:
             self._responses[address] = []  # register listener
 
-        await self._call_conn.publish_json(self._call_address, payload)
+        listener_count = await self._call_conn.publish_json(
+            self._call_address, payload
+        )
+        self._log(f"delivered to {listener_count} listeners")
 
         if timeout == -1:
             return []

@@ -21,6 +21,8 @@ async def call_commands(client: Client) -> None:
     # wait for late ping response
     await asyncio.sleep(2)
 
+    print("Calling unknown command:", await client.call(999, timeout=1))
+
     # exit
     client.close()
 
