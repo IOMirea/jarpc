@@ -16,8 +16,30 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .server import Server  # noqa:F401
-from .client import Client  # noqa:F401
-from .request import Request  # noqa:F401
-from .response import Response  # noqa:F401
-from .constants import StatusCode  # noqa:F401
+from __future__ import annotations
+
+from typing import Any, Dict
+
+
+class Request:
+
+    __slots__ = ("command_index", "address", "_data")
+
+    def __init__(self, command_index: int, address: str, data: Any):
+        self.command_index = command_index
+        self.address = address
+
+        self._data = data
+
+    @classmethod
+    def from_json(cls, payload: Dict[str, Any]) -> Request:
+        return cls(
+            command_index=payload["c"],
+            address=payload["a"],
+            data=payload.get("d", {}),
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"<Request command_index={self.command_index} data={self._data}>"
+        )

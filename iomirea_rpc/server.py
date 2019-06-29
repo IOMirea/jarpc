@@ -25,12 +25,13 @@ from typing import Union, Dict, Any, Tuple
 import aioredis
 
 from .log import rpc_log
+from .request import Request
 from .constants import StatusCode
 
 
 # TODO: find a solution to fix typing
 _CommandType = Any
-# _CommandType = Callable[["Server", str, Any], Awaitable[Any]]
+# _CommandType = Callable[["Server", Request, Any], Awaitable[Any]]
 
 NoValue = object()
 
@@ -82,44 +83,41 @@ class Server:
 
         await self._handler(channels[0])
 
-    async def _parse_payload(
-        self, payload: Dict[str, Any]
-    ) -> Tuple[int, str, Dict[str, Any]]:
-        return (payload["c"], payload["a"], payload.get("d", {}))
-
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                payload = json.loads(msg)
-
-                command_index, address, data = await self._parse_payload(
-                    payload
-                )
+                request = Request.from_json(json.loads(msg))
             except Exception as e:
                 self._log(
-                    f"error parsing command: {e.__class__.__name__}: {e}"
+                    f"error parsing request: {e.__class__.__name__}: {e}"
                 )
 
                 # address is unavailable
-                # await self._respond(address, StatusCode.bad_format)
+                # await self._respond(request.address, StatusCode.bad_format)
                 continue
 
-            self._log(f"recieved command {command_index}")
+            self._log(f"recieved command {request.command_index}")
 
-            fn = self._commands.get(command_index)
+            fn = self._commands.get(request.command_index)
             if fn is None:
-                self._log(f"unknown command {command_index}")
+                self._log(f"unknown command {request.command_index}")
 
-                await self._respond(StatusCode.unknown_command, address)
+                await self._respond(
+                    StatusCode.unknown_command, request.address
+                )
 
                 continue
 
             try:
-                command = fn(self, address, **data)
+                command = fn(self, request, **request._data)
             except TypeError as e:
-                self._log(f"bad arguments given to {command_index}: {e}")
+                self._log(
+                    f"bad arguments given to {request.command_index}: {e}"
+                )
 
-                await self._respond(StatusCode.bad_params, address, str(e))
+                await self._respond(
+                    StatusCode.bad_params, request.address, str(e)
+                )
 
                 continue
 
@@ -127,17 +125,19 @@ class Server:
                 command_result = await command
             except Exception as e:
                 self._log(
-                    f"error calling command {command_index}: {e.__class__.__name__}: {e}"
+                    f"error calling command {request.command_index}: {e.__class__.__name__}: {e}"
                 )
 
-                await self._respond(StatusCode.internal_error, address, str(e))
+                await self._respond(
+                    StatusCode.internal_error, request.address, str(e)
+                )
 
                 continue
 
             if command_result is NoValue:
                 return
 
-            await self.respond(address, command_result)
+            await self.respond(request, command_result)
 
     async def _respond(
         self, status: StatusCode, address: str, data: Any = NoValue
@@ -149,8 +149,8 @@ class Server:
 
         await self._resp_conn.publish_json(self._resp_address, response)
 
-    async def respond(self, address: str, data: Any) -> None:
-        await self._respond(StatusCode.success, address, data)
+    async def respond(self, request: Request, data: Any) -> None:
+        await self._respond(StatusCode.success, request.address, data)
 
     def close(self) -> None:
         self._log("closing connections")

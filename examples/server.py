@@ -3,22 +3,20 @@
 import os
 import asyncio
 
-from typing import Any
-
-from iomirea_rpc import Server
+from iomirea_rpc import Server, Request
 
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
 
-async def ping(srv: Server, address: str, message: str = "") -> Any:
+async def ping(srv: Server, req: Request, message: str = "") -> str:
     # responds with provided message argument or "pong"
 
     return "pong" if message == "" else message
 
 
-async def late_ping(srv: Server, address: str) -> Any:
+async def late_ping(srv: Server, req: Request) -> str:
     # responds with "pong" after 2 seconds
 
     await asyncio.sleep(2)
