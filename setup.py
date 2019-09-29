@@ -22,6 +22,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     license="GPLv3",
     classifiers=[
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Operating System :: OS Independent",
