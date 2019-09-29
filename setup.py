@@ -18,11 +18,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/IOMirea/rpc",
     install_requires=requirements,
-    python_requires=">=3.5.3",
+    python_requires=">=3.7.1",
     packages=setuptools.find_packages(),
     license="GPLv3",
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "Operating System :: OS Independent",
     ],
 )
