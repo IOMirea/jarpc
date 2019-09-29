@@ -25,8 +25,8 @@ from typing import Any, Dict, Tuple, Union
 
 import aioredis
 
+from .enums import StatusCode
 from .request import Request
-from .constants import StatusCode
 
 # TODO: find a solution to fix typing
 _CommandType = Any
@@ -101,7 +101,7 @@ class Server:
             if fn is None:
                 log.warning(f"unknown command {request.command_index}")
 
-                await self._respond(StatusCode.unknown_command, request.address)
+                await self._respond(StatusCode.UNKNOWN_COMMAND, request.address)
 
                 continue
 
@@ -110,7 +110,7 @@ class Server:
             except TypeError as e:
                 log.error(f"bad arguments given to {request.command_index}: {e}")
 
-                await self._respond(StatusCode.bad_params, request.address, str(e))
+                await self._respond(StatusCode.BAD_PARAMS, request.address, str(e))
 
                 continue
 
@@ -121,7 +121,7 @@ class Server:
                     f"error calling command {request.command_index}: {e.__class__.__name__}: {e}"
                 )
 
-                await self._respond(StatusCode.internal_error, request.address, str(e))
+                await self._respond(StatusCode.INTERNAL_ERROR, request.address, str(e))
 
                 continue
 
@@ -141,7 +141,7 @@ class Server:
         await self._resp_conn.publish_json(self._resp_address, response)
 
     async def respond(self, request: Request, data: Any) -> None:
-        await self._respond(StatusCode.success, request.address, data)
+        await self._respond(StatusCode.SUCCESS, request.address, data)
 
     def close(self) -> None:
         log.info("closing connections")

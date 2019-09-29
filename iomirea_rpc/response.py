@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from .constants import StatusCode
+from .enums import StatusCode
 
 
 class Response:

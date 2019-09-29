@@ -16,10 +16,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from .enums import StatusCode
 from .client import Client
 from .server import Server
 from .request import Request
 from .response import Response
-from .constants import StatusCode
 
 __all__ = ("Server", "Client", "Request", "Response", "StatusCode")
