@@ -20,14 +20,13 @@ import json
 import uuid
 import asyncio
 
-from typing import Union, Dict, Any, Tuple
+from typing import Any, Dict, Tuple, Union
 
 import aioredis
 
 from .log import rpc_log
 from .request import Request
 from .constants import StatusCode
-
 
 # TODO: find a solution to fix typing
 _CommandType = Any
@@ -88,9 +87,7 @@ class Server:
             try:
                 request = Request.from_json(json.loads(msg))
             except Exception as e:
-                self._log(
-                    f"error parsing request: {e.__class__.__name__}: {e}"
-                )
+                self._log(f"error parsing request: {e.__class__.__name__}: {e}")
 
                 # address is unavailable
                 # await self._respond(request.address, StatusCode.bad_format)
@@ -102,22 +99,16 @@ class Server:
             if fn is None:
                 self._log(f"unknown command {request.command_index}")
 
-                await self._respond(
-                    StatusCode.unknown_command, request.address
-                )
+                await self._respond(StatusCode.unknown_command, request.address)
 
                 continue
 
             try:
                 command = fn(self, request, **request._data)
             except TypeError as e:
-                self._log(
-                    f"bad arguments given to {request.command_index}: {e}"
-                )
+                self._log(f"bad arguments given to {request.command_index}: {e}")
 
-                await self._respond(
-                    StatusCode.bad_params, request.address, str(e)
-                )
+                await self._respond(StatusCode.bad_params, request.address, str(e))
 
                 continue
 
@@ -128,9 +119,7 @@ class Server:
                     f"error calling command {request.command_index}: {e.__class__.__name__}: {e}"
                 )
 
-                await self._respond(
-                    StatusCode.internal_error, request.address, str(e)
-                )
+                await self._respond(StatusCode.internal_error, request.address, str(e))
 
                 continue
 
