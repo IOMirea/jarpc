@@ -1,0 +1,22 @@
+dist: bionic
+language: python
+python: "3.7"
+
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/pre-commit
+
+services:
+  - redis-server
+
+env:
+  global:
+    - PIP_DISABLE_PIP_VERSION_CHECK=yes
+
+install:
+  - pip install --upgrade pip
+  - pip install pre-commit -r requirements.txt
+
+script:
+  - pre-commit run --all-files
