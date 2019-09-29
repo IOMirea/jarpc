@@ -1,7 +1,6 @@
-import setuptools
-
 from typing import List
 
+import setuptools
 
 requirements: List[str] = []
 with open("requirements.txt") as f:
