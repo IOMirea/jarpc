@@ -19,13 +19,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 import uuid
 import asyncio
+import logging
 
 from typing import Any, Dict, List, Tuple, Union
 
 import aioredis
 
-from .log import rpc_log
 from .response import Response
+
+log = logging.getLogger(__name__)
 
 
 class Client:
@@ -53,8 +55,8 @@ class Client:
 
         channels = await self._resp_conn.subscribe(self._resp_address)
 
-        self._log(f"listening: {self._resp_address}")
-        self._log(f"calling: {self._call_address}")
+        log.info(f"listening: {self._resp_address}")
+        log.info(f"calling: {self._call_address}")
 
         await self._handler(channels[0])
 
@@ -63,11 +65,11 @@ class Client:
             try:
                 response = Response.from_json(json.loads(msg))
             except Exception as e:
-                self._log(f"error parsing response: {e.__class__.__name__}: {e}")
+                log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
 
             if response._address not in self._responses:
-                self._log(f"ignoring response from node {response.node}")
+                log.debug(f"ignoring response from node {response.node}")
                 continue
 
             self._responses[response._address].append(response)
@@ -81,13 +83,13 @@ class Client:
 
         payload = {"c": index, "a": address, "d": data}
 
-        self._log(f"sending command {index}")
+        log.info(f"sending command {index}")
 
         if timeout != -1:
             self._responses[address] = []  # register listener
 
         listener_count = await self._call_conn.publish_json(self._call_address, payload)
-        self._log(f"delivered to {listener_count} listeners")
+        log.debug(f"delivered to {listener_count} listeners")
 
         if timeout == -1:
             return []
@@ -97,13 +99,10 @@ class Client:
         return self._responses.pop(address)
 
     def close(self) -> None:
-        self._log("closing connections")
+        log.info("closing connections")
 
         self._call_conn.close()
         self._resp_conn.close()
-
-    def _log(self, text: str) -> None:
-        rpc_log(text, prefix="client")
 
     def __repr__(self) -> str:
         return f"<Client call_address={self._call_address} resp_addrss={self._resp_address}>"

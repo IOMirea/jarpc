@@ -10,13 +10,17 @@ REDIS_PORT = 6379
 
 
 async def ping(srv: Server, req: Request, message: str = "") -> str:
-    # responds with provided message argument or "pong"
+    """Responds with provided message argument or 'pong'"""
+
+    print("Recieved ping command")
 
     return "pong" if message == "" else message
 
 
 async def late_ping(srv: Server, req: Request) -> str:
-    # responds with "pong" after 2 seconds
+    """Responds with 'pong' after 2 seconds"""
+
+    print("Recieved late ping command")
 
     await asyncio.sleep(2)
 

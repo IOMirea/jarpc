@@ -19,12 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import json
 import uuid
 import asyncio
+import logging
 
 from typing import Any, Dict, Tuple, Union
 
 import aioredis
 
-from .log import rpc_log
 from .request import Request
 from .constants import StatusCode
 
@@ -33,6 +33,8 @@ _CommandType = Any
 # _CommandType = Callable[["Server", Request, Any], Awaitable[Any]]
 
 NoValue = object()
+
+log = logging.getLogger(__name__)
 
 
 class Server:
@@ -76,9 +78,9 @@ class Server:
 
         channels = await self._call_conn.subscribe(self._call_address)
 
-        self._log(f"running on node {self.node}")
-        self._log(f"listening: {self._call_address}")
-        self._log(f"responding: {self._resp_address}")
+        log.info(f"running on node {self.node}")
+        log.info(f"listening: {self._call_address}")
+        log.info(f"responding: {self._resp_address}")
 
         await self._handler(channels[0])
 
@@ -87,17 +89,17 @@ class Server:
             try:
                 request = Request.from_json(json.loads(msg))
             except Exception as e:
-                self._log(f"error parsing request: {e.__class__.__name__}: {e}")
+                log.error(f"error parsing request: {e.__class__.__name__}: {e}")
 
                 # address is unavailable
                 # await self._respond(request.address, StatusCode.bad_format)
                 continue
 
-            self._log(f"recieved command {request.command_index}")
+            log.info(f"recieved command {request.command_index}")
 
             fn = self._commands.get(request.command_index)
             if fn is None:
-                self._log(f"unknown command {request.command_index}")
+                log.warning(f"unknown command {request.command_index}")
 
                 await self._respond(StatusCode.unknown_command, request.address)
 
@@ -106,7 +108,7 @@ class Server:
             try:
                 command = fn(self, request, **request._data)
             except TypeError as e:
-                self._log(f"bad arguments given to {request.command_index}: {e}")
+                log.error(f"bad arguments given to {request.command_index}: {e}")
 
                 await self._respond(StatusCode.bad_params, request.address, str(e))
 
@@ -115,7 +117,7 @@ class Server:
             try:
                 command_result = await command
             except Exception as e:
-                self._log(
+                log.error(
                     f"error calling command {request.command_index}: {e.__class__.__name__}: {e}"
                 )
 
@@ -142,13 +144,10 @@ class Server:
         await self._respond(StatusCode.success, request.address, data)
 
     def close(self) -> None:
-        self._log("closing connections")
+        log.info("closing connections")
 
         self._call_conn.close()
         self._resp_conn.close()
-
-    def _log(self, text: str) -> None:
-        rpc_log(text, prefix="server")
 
     def __repr__(self) -> str:
         return f"<Server call_address={self._call_address} resp_addrss={self._resp_address} node={self.node}>"
