@@ -1,7 +1,7 @@
-### Configs ###
-*.json
-
 ### Python ###
+# Mypy
+.mypy_cache
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

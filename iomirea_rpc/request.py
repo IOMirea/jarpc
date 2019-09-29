@@ -34,12 +34,8 @@ class Request:
     @classmethod
     def from_json(cls, payload: Dict[str, Any]) -> Request:
         return cls(
-            command_index=payload["c"],
-            address=payload["a"],
-            data=payload.get("d", {}),
+            command_index=payload["c"], address=payload["a"], data=payload.get("d", {})
         )
 
     def __repr__(self) -> str:
-        return (
-            f"<Request command_index={self.command_index} data={self._data}>"
-        )
+        return f"<Request command_index={self.command_index} data={self._data}>"

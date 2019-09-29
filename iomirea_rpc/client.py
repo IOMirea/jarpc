@@ -20,12 +20,12 @@ import json
 import uuid
 import asyncio
 
-from typing import Union, Dict, Any, Tuple, List
+from typing import Any, Dict, List, Tuple, Union
 
 import aioredis
 
-from .response import Response
 from .log import rpc_log
+from .response import Response
 
 
 class Client:
@@ -63,9 +63,7 @@ class Client:
             try:
                 response = Response.from_json(json.loads(msg))
             except Exception as e:
-                self._log(
-                    f"error parsing response: {e.__class__.__name__}: {e}"
-                )
+                self._log(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
 
             if response._address not in self._responses:
@@ -88,9 +86,7 @@ class Client:
         if timeout != -1:
             self._responses[address] = []  # register listener
 
-        listener_count = await self._call_conn.publish_json(
-            self._call_address, payload
-        )
+        listener_count = await self._call_conn.publish_json(self._call_address, payload)
         self._log(f"delivered to {listener_count} listeners")
 
         if timeout == -1:

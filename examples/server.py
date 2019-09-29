@@ -5,7 +5,6 @@ import asyncio
 
 from iomirea_rpc import Server, Request
 
-
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
