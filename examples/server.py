@@ -17,7 +17,7 @@ COMMAND_MULTIPLE_RESPONSES = 2
 async def ping(srv: Server, req: Request, message: str = "") -> str:
     """Responds with provided message argument or 'pong'."""
 
-    print("Recieved PING command")
+    print("Received PING command")
 
     return "pong" if message == "" else message
 
@@ -25,7 +25,7 @@ async def ping(srv: Server, req: Request, message: str = "") -> str:
 async def slow_ping(srv: Server, req: Request) -> str:
     """Responds with 'pong' after 2 seconds, too slow..."""
 
-    print("Recieved SLOW_PING command")
+    print("Received SLOW_PING command")
 
     await asyncio.sleep(2)
 
@@ -35,7 +35,7 @@ async def slow_ping(srv: Server, req: Request) -> str:
 async def multiple_responses(srv: Server, req: Request) -> None:
     """Sends random number 5 times."""
 
-    print("Recieved MULTIPLE_RESPONSES")
+    print("Received MULTIPLE_RESPONSES")
 
     for i in range(5):
         await srv.respond(req, random.randint(0, 42))

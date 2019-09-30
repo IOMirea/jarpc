@@ -141,7 +141,7 @@ class Client:
         timeout: Optional[int] = None,
     ) -> AsyncTimeoutResponseIterator:
         """
-        Calls command and returns recieved responses. Skips response processing
+        Calls command and returns received responses. Skips response processing
         completely if timeout is None.
         """
 

@@ -97,7 +97,7 @@ class Server:
                 # await self._respond(request.address, StatusCode.BAD_FORMAT)
                 continue
 
-            log.info(f"recieved command {request.command_index}")
+            log.info(f"received command {request.command_index}")
 
             fn = self._commands.get(request.command_index)
             if fn is None:
