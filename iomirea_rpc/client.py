@@ -16,12 +16,15 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+from __future__ import annotations
+
 import json
+import time
 import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union, Optional
 
 import aioredis
 
@@ -30,7 +33,53 @@ from .response import Response
 log = logging.getLogger(__name__)
 
 
+class AsyncTimeoutResponseIterator:
+
+    __slots__ = ("_client", "_address", "_timeout", "_start_time")
+
+    def __init__(
+        self,
+        client: Client,
+        address: Optional[str] = None,
+        timeout: Optional[int] = None,
+    ):
+        self._client = client
+        self._address = address
+        self._timeout = timeout
+
+        self._start_time = time.time()
+
+        if self._address is not None and self._timeout is not None:
+            self._client._responses[self._address] = asyncio.Queue(
+                loop=self._client._loop
+            )
+
+    async def flatten(self) -> List[Response]:
+        """Convenience function that exhausts iterator and returns all responses."""
+
+        return [resp async for resp in self]
+
+    def __aiter__(self) -> AsyncTimeoutResponseIterator:
+        return self
+
+    async def __anext__(self) -> Response:
+        if self._address is None or self._timeout is None:
+            raise StopAsyncIteration
+
+        try:
+            return await asyncio.wait_for(
+                self._client._responses[self._address].get(),
+                timeout=time.time() - self._start_time + self._timeout,
+                loop=self._client._loop,
+            )
+        except asyncio.TimeoutError:
+            del self._client._responses[self._address]
+            raise StopAsyncIteration
+
+
 class Client:
+    """RPC client sends commands to servers and listens for responses."""
+
     def __init__(
         self,
         channel_name: str,
@@ -39,18 +88,20 @@ class Client:
         self._call_address = f"rpc:{channel_name}"
         self._resp_address = f"{self._call_address}-response"
 
-        self.loop = loop
+        self._loop = loop
 
-        self._responses: Dict[str, List[Response]] = {}
+        self._responses: Dict[str, asyncio.Queue[Response]] = {}
 
     async def run(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
+        """Launches client."""
+
         self._call_conn = await aioredis.create_redis(
-            redis_address, loop=self.loop, **kwargs
+            redis_address, loop=self._loop, **kwargs
         )
         self._resp_conn = await aioredis.create_redis(
-            redis_address, loop=self.loop, **kwargs
+            redis_address, loop=self._loop, **kwargs
         )
 
         channels = await self._resp_conn.subscribe(self._resp_address)
@@ -72,31 +123,38 @@ class Client:
                 log.debug(f"ignoring response from node {response.node}")
                 continue
 
-            self._responses[response._address].append(response)
+            await self._responses[response._address].put(response)
 
-    async def call(
-        self, index: int, data: Dict[str, Any] = {}, timeout: int = -1
-    ) -> List[Response]:
-        # TODO: async generator
+    async def _send(self, payload: Dict[str, Any]) -> None:
+        num_listeners = await self._call_conn.publish_json(self._call_address, payload)
+        log.debug(f"delivered to {num_listeners} listeners")
 
-        address = uuid.uuid4().hex
+    def call(
+        self,
+        command_index: int,
+        data: Dict[str, Any] = {},
+        timeout: Optional[int] = None,
+    ) -> AsyncTimeoutResponseIterator:
+        """
+        Calls command and returns recieved responses. Skips response processing
+        completely if timeout is None.
+        """
 
-        payload = {"c": index, "a": address, "d": data}
+        log.info(f"sending command {command_index}")
 
-        log.info(f"sending command {index}")
+        payload = {"c": command_index, "d": data}
 
-        if timeout != -1:
-            self._responses[address] = []  # register listener
+        address: Optional[str]
 
-        listener_count = await self._call_conn.publish_json(self._call_address, payload)
-        log.debug(f"delivered to {listener_count} listeners")
+        if timeout is not None:
+            address = uuid.uuid4().hex
+            payload["a"] = address
+        else:
+            address = None
 
-        if timeout == -1:
-            return []
+        asyncio.create_task(self._send(payload))
 
-        await asyncio.sleep(timeout)
-
-        return self._responses.pop(address)
+        return AsyncTimeoutResponseIterator(self, address, timeout)
 
     def close(self) -> None:
         log.info("closing connections")

@@ -8,19 +8,28 @@ REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
 
+COMMAND_PING = 0
+COMMAND_SLOW_PING = 1
+COMMAND_UNKNOWN = 999
+
+
 async def call_commands(client: Client) -> None:
     # wait for client to establish connection
     await asyncio.sleep(1)
 
     ping_data = {"message": input("Enter message to send or leave blank: ")}
 
-    print("Calling ping:", await client.call(0, ping_data, timeout=1))
-    print("Calling late ping:", await client.call(1, timeout=1))
+    print("Calling ping: ", end="", flush=True)
+    print(await client.call(COMMAND_PING, ping_data, timeout=1).flatten())
+    print("Calling slow ping: ", end="", flush=True)
+    print(await client.call(COMMAND_SLOW_PING, timeout=1).flatten())
 
-    # wait for late ping response
+    # wait for slow ping response (will be ignored because timeout is 1)
+    print("Waiting ...")
     await asyncio.sleep(2)
 
-    print("Calling unknown command:", await client.call(999, timeout=1))
+    print("Calling unknown command: ", end="", flush=True)
+    print(await client.call(COMMAND_UNKNOWN, timeout=1).flatten())
 
     # exit
     client.close()

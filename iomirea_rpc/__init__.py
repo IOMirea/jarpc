@@ -22,4 +22,4 @@ from .server import Server
 from .request import Request
 from .response import Response
 
-__all__ = ("Server", "Client", "Request", "Response", "StatusCode")
+__all__ = ("StatusCode", "Client", "Server", "Request", "Response")

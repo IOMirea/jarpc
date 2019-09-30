@@ -21,7 +21,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple, Union, Optional
 
 import aioredis
 
@@ -38,6 +38,8 @@ log = logging.getLogger(__name__)
 
 
 class Server:
+    """RPC server listens for commands from clients and sends responses."""
+
     def __init__(
         self,
         channel_name: str,
@@ -92,7 +94,7 @@ class Server:
                 log.error(f"error parsing request: {e.__class__.__name__}: {e}")
 
                 # address is unavailable
-                # await self._respond(request.address, StatusCode.bad_format)
+                # await self._respond(request.address, StatusCode.BAD_FORMAT)
                 continue
 
             log.info(f"recieved command {request.command_index}")
@@ -130,15 +132,22 @@ class Server:
 
             await self.respond(request, command_result)
 
+    async def _send(self, payload: Dict[str, Any]) -> None:
+        await self._resp_conn.publish_json(self._resp_address, payload)
+
     async def _respond(
-        self, status: StatusCode, address: str, data: Any = NoValue
+        self, status: StatusCode, address: Optional[str], data: Any = NoValue
     ) -> None:
-        response = {"s": status.value, "n": self.node, "a": address}
+        if address is None:
+            log.debug("no address, unable to respond")
+            return
+
+        payload = {"s": status.value, "n": self.node, "a": address}
 
         if data is not NoValue:
-            response["d"] = data
+            payload["d"] = data
 
-        await self._resp_conn.publish_json(self._resp_address, response)
+        await self._send(payload)
 
     async def respond(self, request: Request, data: Any) -> None:
         await self._respond(StatusCode.SUCCESS, request.address, data)

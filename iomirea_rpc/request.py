@@ -18,14 +18,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class Request:
 
     __slots__ = ("command_index", "address", "_data")
 
-    def __init__(self, command_index: int, address: str, data: Any):
+    def __init__(self, command_index: int, address: Optional[str], data: Any):
         self.command_index = command_index
         self.address = address
 
@@ -34,7 +34,9 @@ class Request:
     @classmethod
     def from_json(cls, payload: Dict[str, Any]) -> Request:
         return cls(
-            command_index=payload["c"], address=payload["a"], data=payload.get("d", {})
+            command_index=payload["c"],
+            address=payload.get("a"),
+            data=payload.get("d", {}),
         )
 
     def __repr__(self) -> str:
