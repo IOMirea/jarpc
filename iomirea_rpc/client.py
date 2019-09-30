@@ -37,19 +37,14 @@ class AsyncTimeoutResponseIterator:
 
     __slots__ = ("_client", "_address", "_timeout", "_start_time", "_queue")
 
-    def __init__(
-        self,
-        client: Client,
-        address: Optional[str] = None,
-        timeout: Optional[int] = None,
-    ):
+    def __init__(self, client: Client, address: str, timeout: Optional[int] = None):
         self._client = client
         self._address = address
         self._timeout = timeout
 
         self._start_time = time.time()
 
-        if address is not None and timeout is not None:
+        if timeout is not None:
             self._queue: asyncio.Queue[Response] = asyncio.Queue(
                 loop=self._client._loop
             )
@@ -64,19 +59,20 @@ class AsyncTimeoutResponseIterator:
         return self
 
     async def __anext__(self) -> Response:
-        if self._address is None or self._timeout is None:
+        if self._timeout is None:
             raise StopAsyncIteration
+
+        time_remaining = self._timeout - time.time() + self._start_time
 
         try:
             return await asyncio.wait_for(
-                self._queue.get(),
-                timeout=time.time() - self._start_time + self._timeout,
-                loop=self._client._loop,
+                self._queue.get(), timeout=time_remaining, loop=self._client._loop
             )
         except asyncio.TimeoutError:
             raise StopAsyncIteration
-        finally:
-            self._client._remove_queue(self._address)
+
+    def __del__(self) -> None:
+        self._client._remove_queue(self._address)
 
 
 class Client:
@@ -132,7 +128,7 @@ class Client:
         self._listeners[address] = queue
 
     def _remove_queue(self, address: str) -> None:
-        del self._listeners[address]
+        self._listeners.pop(address, None)
 
     async def _send(self, payload: Dict[str, Any]) -> None:
         num_listeners = await self._call_conn.publish_json(self._call_address, payload)
@@ -153,13 +149,11 @@ class Client:
 
         payload = {"c": command_index, "d": data}
 
-        address: Optional[str]
-
         if timeout is not None:
             address = uuid.uuid4().hex
             payload["a"] = address
         else:
-            address = None
+            address = ""
 
         asyncio.create_task(self._send(payload))
 

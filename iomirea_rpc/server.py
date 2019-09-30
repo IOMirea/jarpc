@@ -127,8 +127,8 @@ class Server:
 
                 continue
 
-            if command_result is NoValue:
-                return
+            if command_result is None:
+                continue
 
             await self.respond(request, command_result)
 

@@ -1,6 +1,7 @@
 # NOTE: see client.py example
 
 import os
+import random
 import asyncio
 
 from iomirea_rpc import Server, Request
@@ -10,6 +11,7 @@ REDIS_PORT = 6379
 
 COMMAND_PING = 0
 COMMAND_SLOW_PING = 1
+COMMAND_MULTIPLE_RESPONSES = 2
 
 
 async def ping(srv: Server, req: Request, message: str = "") -> str:
@@ -30,11 +32,22 @@ async def slow_ping(srv: Server, req: Request) -> str:
     return "ping"
 
 
+async def multiple_responses(srv: Server, req: Request) -> None:
+    """Sends random number 5 times."""
+
+    print("Recieved MULTIPLE_RESPONSES")
+
+    for i in range(5):
+        await srv.respond(req, random.randint(0, 42))
+        await asyncio.sleep(1)
+
+
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
 
     server = Server("example", loop=loop, node=f"example-{os.getpid()}")
     server.register_command(COMMAND_PING, ping)
     server.register_command(COMMAND_SLOW_PING, slow_ping)
+    server.register_command(COMMAND_MULTIPLE_RESPONSES, multiple_responses)
 
     loop.run_until_complete(server.run((REDIS_HOST, REDIS_PORT)))
