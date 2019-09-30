@@ -35,7 +35,7 @@ log = logging.getLogger(__name__)
 
 class AsyncTimeoutResponseIterator:
 
-    __slots__ = ("_client", "_address", "_timeout", "_start_time")
+    __slots__ = ("_client", "_address", "_timeout", "_start_time", "_queue")
 
     def __init__(
         self,
@@ -49,10 +49,11 @@ class AsyncTimeoutResponseIterator:
 
         self._start_time = time.time()
 
-        if self._address is not None and self._timeout is not None:
-            self._client._responses[self._address] = asyncio.Queue(
+        if address is not None and timeout is not None:
+            self._queue: asyncio.Queue[Response] = asyncio.Queue(
                 loop=self._client._loop
             )
+            self._client._add_queue(address, self._queue)
 
     async def flatten(self) -> List[Response]:
         """Convenience function that exhausts iterator and returns all responses."""
@@ -68,13 +69,14 @@ class AsyncTimeoutResponseIterator:
 
         try:
             return await asyncio.wait_for(
-                self._client._responses[self._address].get(),
+                self._queue.get(),
                 timeout=time.time() - self._start_time + self._timeout,
                 loop=self._client._loop,
             )
         except asyncio.TimeoutError:
-            del self._client._responses[self._address]
             raise StopAsyncIteration
+        finally:
+            self._client._remove_queue(self._address)
 
 
 class Client:
@@ -90,7 +92,7 @@ class Client:
 
         self._loop = loop
 
-        self._responses: Dict[str, asyncio.Queue[Response]] = {}
+        self._listeners: Dict[str, asyncio.Queue[Response]] = {}
 
     async def run(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
@@ -119,11 +121,18 @@ class Client:
                 log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
 
-            if response._address not in self._responses:
+            queue = self._listeners.get(response._address)
+            if queue is None:
                 log.debug(f"ignoring response from node {response.node}")
                 continue
 
-            await self._responses[response._address].put(response)
+            await queue.put(response)
+
+    def _add_queue(self, address: str, queue: asyncio.Queue[Response]) -> None:
+        self._listeners[address] = queue
+
+    def _remove_queue(self, address: str) -> None:
+        del self._listeners[address]
 
     async def _send(self, payload: Dict[str, Any]) -> None:
         num_listeners = await self._call_conn.publish_json(self._call_address, payload)
