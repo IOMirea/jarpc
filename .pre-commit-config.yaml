@@ -22,4 +22,4 @@ repos:
     rev: v0.730
     hooks:
       - id: mypy
-        args: [--config-file=mypy.ini, --ignore-missing-imports]
+        files: ^iomirea_rpc/.+$
