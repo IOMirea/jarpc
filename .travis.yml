@@ -1,23 +1,32 @@
-dist: bionic
+dist: xenial
 language: python
 python:
   - "3.7"
+  - "3.8-dev"
+
+matrix:
+  include:
+    - name: "Python 3.7 on Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 
 cache:
   pip: true
   directories:
     - $HOME/.cache/pre-commit
 
-services:
-  - redis-server
-
 env:
   global:
     - PIP_DISABLE_PIP_VERSION_CHECK=yes PIP_QUIET=yes
 
 install:
-  - pip install --upgrade pip
-  - pip install pre-commit -r requirements.txt
+  - pip3 install --upgrade pip
+  - pip3 install pre-commit -r requirements.txt
+  - pip3 install .
 
 script:
   - pre-commit run --all-files
