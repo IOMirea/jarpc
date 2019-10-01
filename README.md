@@ -1,18 +1,31 @@
 # IOMirea-rpc
 ## Warning: project is in early development stage, expect bugs and frequent breaking changes
 
-IOMirea-rpc is RPC library based on redis channels built with [aioredis](https://github.com/aio-libs/aioredis)
-developed for IOMirea messenger internal use.
+IOMirea-rpc is RPC library based on redis pubsub built with [aioredis](https://github.com/aio-libs/aioredis).
+
+[![Build Status](https://travis-ci.org/IOMirea/rpc.svg?branch=master)](https://travis-ci.org/IOMirea/rpc)
 
 ### Installation
 Library can be installed with the following command `pip install git+https://github.com/IOMirea/rpc.git#egg=iomirea_rpc`
 
 ### Running
-There are 2 supported modes: server and client.  
-Client can send commands and process responses, server listens for commands and executes them, sending responses.  
-There is no limit for clients/servers, you can run several instances in parallel without problems.
+There are 3 run modes: `Client`, `Server` and `ClientServer`.
 
-Examples of both server and client can be found in examples folder.
+|                    | Client | Server |  ClientServer   |
+| :----------------- | :----: | :----: | :-------------: |
+| Sending command    |    ✔️   |        | not implemented |
+| Receiving commands |        |    ✔️   | not implemented |
+
+##### Client
+Sends commands to servers and waites for responses.
+
+##### Server
+Waits for commands from clients, runs functions and responds.
+
+##### ClientServer
+Combines both client and server. It can send commands to servers and respond to clients at the same time.
+
+Examples of running in each can be found in [examples folder](https://github.com/IOMirea/rpc/blob/master/examples).
 
 ## Contributing
 Feel free to open an issue or submit a pull request.  
