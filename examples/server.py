@@ -9,11 +9,10 @@ from iomirea_rpc import Server, Request
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
-COMMAND_PING = 0
-COMMAND_SLOW_PING = 1
-COMMAND_MULTIPLE_RESPONSES = 2
+server = Server("example", node=f"example-{os.getpid()}")
 
 
+@server.command(0)
 async def ping(req: Request, message: str = "") -> str:
     """Responds with provided message argument or 'pong'."""
 
@@ -22,6 +21,7 @@ async def ping(req: Request, message: str = "") -> str:
     return "pong" if message == "" else message
 
 
+@server.command(1)
 async def slow_ping(req: Request) -> str:
     """Responds with 'pong' after 2 seconds, too slow..."""
 
@@ -32,6 +32,7 @@ async def slow_ping(req: Request) -> str:
     return "pong"
 
 
+@server.command(2)
 async def multiple_responses(req: Request) -> None:
     """Sends random number 5 times."""
 
@@ -43,12 +44,4 @@ async def multiple_responses(req: Request) -> None:
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-
-    server = Server("example", loop=loop, node=f"example-{os.getpid()}")
-
-    server.register_command(COMMAND_PING, ping)
-    server.register_command(COMMAND_SLOW_PING, slow_ping)
-    server.register_command(COMMAND_MULTIPLE_RESPONSES, multiple_responses)
-
-    loop.run_until_complete(server.run((REDIS_HOST, REDIS_PORT)))
+    server.run((REDIS_HOST, REDIS_PORT))

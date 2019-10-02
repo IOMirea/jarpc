@@ -22,6 +22,7 @@ import asyncio
 import logging
 
 from typing import Any, Dict, Tuple, Union, Callable, Optional
+from functools import wraps
 
 import aioredis
 

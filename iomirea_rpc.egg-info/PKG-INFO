@@ -1,0 +1,51 @@
+Metadata-Version: 2.1
+Name: iomirea-rpc
+Version: 0.2.0
+Summary: RPC system used in IOMirea messenger
+Home-page: https://github.com/IOMirea/rpc
+Author: Eugene Ershov
+License: GPLv3
+Description: # IOMirea-rpc
+        ## Warning: project is in early development stage, expect bugs and frequent breaking changes
+        
+        IOMirea-rpc is RPC library based on redis pubsub built with [aioredis](https://github.com/aio-libs/aioredis).
+        
+        [![Build Status](https://travis-ci.org/IOMirea/rpc.svg?branch=master)](https://travis-ci.org/IOMirea/rpc)
+        [![codecov](https://codecov.io/gh/IOMirea/rpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/rpc)
+        
+        ### Installation
+        Library can be installed with the following command `pip install git+https://github.com/IOMirea/rpc.git#egg=iomirea_rpc`
+        
+        ### Running
+        There are 3 run modes: `Client`, `Server` and `ClientServer`.
+        
+        |                    | Client | Server |  ClientServer   |
+        | :----------------- | :----: | :----: | :-------------: |
+        | Sending command    |    ✔️   |        | not implemented |
+        | Receiving commands |        |    ✔️   | not implemented |
+        
+        ##### Client
+        Sends commands to servers and waites for responses.
+        
+        ##### Server
+        Waits for commands from clients, runs functions and responds.
+        
+        ##### ClientServer
+        Combines both client and server. It can send commands to servers and respond to clients at the same time.
+        
+        Examples of running in each can be found in [examples folder](https://github.com/IOMirea/rpc/blob/master/examples).
+        
+        ## Contributing
+        Feel free to open an issue or submit a pull request.  
+        
+        ## License
+        Source code is available under GPL v3.0 license, you can get it [here](https://github.com/IOMirea/rpc/blob/master/LICENSE).
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.7.1
+Description-Content-Type: text/markdown
