@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
-import json
 import time
 import uuid
 import asyncio
@@ -32,6 +31,8 @@ from .abc import ABCClient, ResponsesIterator
 from .response import Response
 
 log = logging.getLogger(__name__)
+
+_SerializerType = Any  # see server.py
 
 
 class ResponsesWithTimeout(ResponsesIterator):
@@ -114,7 +115,7 @@ class ResponsesWithTimeout(ResponsesIterator):
         return f"<{self.__class__.__name__} time_remaining={self.time_remaining} responses_seen={self.responses_seen}>"
 
 
-class EmtpyResponses(ResponsesIterator):
+class EmptyResponses(ResponsesIterator):
     """Looks and behaves the same way as ResponsesWithTimeout, but is empty."""
 
     def __await__(self) -> Generator[Any, None, List[Response]]:
@@ -123,7 +124,7 @@ class EmtpyResponses(ResponsesIterator):
 
         return coro().__await__()
 
-    def __aiter__(self) -> EmtpyResponses:
+    def __aiter__(self) -> EmptyResponses:
         return self
 
     async def __anext__(self) -> Response:
@@ -136,6 +137,7 @@ class Client(ABCClient):
     def __init__(
         self,
         channel_name: str,
+        serializer: Optional[_SerializerType] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         default_timeout: Optional[int] = None,
         default_expect_responses: Optional[int] = None,
@@ -147,6 +149,16 @@ class Client(ABCClient):
             self._loop = asyncio.get_event_loop()
         else:
             self._loop = loop
+
+        if serializer is None:
+            import marshal
+
+            self._serializer = marshal
+        else:
+            if not hasattr(serializer, "loads") or not hasattr(serializer, "dumps"):
+                raise ValueError("Serializer does not implement loads and dumps.")
+
+            self._serializer = serializer
 
         self._default_timeout = default_timeout
         self._default_expect_responses = default_expect_responses
@@ -180,7 +192,9 @@ class Client(ABCClient):
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                response = Response.from_data(json.loads(msg))
+                response = Response.from_data(
+                    self._serializer.loads(msg)
+                )  # type: ignore
             except Exception as e:
                 log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
@@ -200,8 +214,8 @@ class Client(ABCClient):
     def _remove_queue(self, address: str) -> None:
         self._listeners.pop(address, None)
 
-    async def _send(self, payload: Dict[str, Any]) -> None:
-        num_listeners = await self._call_conn.publish_json(self._call_address, payload)
+    async def _send(self, payload: bytes) -> None:
+        num_listeners = await self._call_conn.publish(self._call_address, payload)
         log.debug(f"delivered to {num_listeners} listeners")
 
     def call(
@@ -230,10 +244,10 @@ class Client(ABCClient):
             queue: asyncio.Queue[Response] = asyncio.Queue(loop=self._loop)
             self._add_queue(address, queue)
 
-        asyncio.create_task(self._send(payload))
+        asyncio.create_task(self._send(self._serializer.dumps(payload)))  # type: ignore
 
         if timeout is None:
-            return EmtpyResponses()
+            return EmptyResponses()
         else:
             return ResponsesWithTimeout(
                 self,

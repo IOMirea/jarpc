@@ -16,7 +16,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import json
 import uuid
 import asyncio
 import logging
@@ -31,6 +30,7 @@ from .request import Request
 from .constants import NoValue
 
 _CommandType = Any
+_SerializerType = Any  # ModuleType or object with loads and dumps, TODO
 
 # TODO: annotate _CommandType properly.
 # Possible solutions (do not work for different reasons)
@@ -56,6 +56,7 @@ class Server(ABCServer):
     def __init__(
         self,
         channel_name: str,
+        serializer: Optional[_SerializerType] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
     ):
@@ -67,6 +68,16 @@ class Server(ABCServer):
             self._loop = asyncio.get_event_loop()
         else:
             self._loop = loop
+
+        if serializer is None:
+            import marshal
+
+            self._serializer = marshal
+        else:
+            if not hasattr(serializer, "loads") or not hasattr(serializer, "dumps"):
+                raise ValueError("Serializer does not implement loads and dumps.")
+
+            self._serializer = serializer
 
         if node is None:
             self._node = uuid.uuid4().hex
@@ -123,7 +134,9 @@ class Server(ABCServer):
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                request = Request.from_data(self, json.loads(msg))
+                request = Request.from_data(
+                    self, self._serializer.loads(msg)
+                )  # type: ignore
             except Exception as e:
                 log.error(f"error parsing request: {e.__class__.__name__}: {e}")
 
@@ -168,8 +181,8 @@ class Server(ABCServer):
 
             await request.reply(command_result)
 
-    async def _send(self, payload: Dict[str, Any]) -> None:
-        await self._resp_conn.publish_json(self._resp_address, payload)
+    async def _send(self, payload: bytes) -> None:
+        await self._resp_conn.publish(self._resp_address, payload)
 
     async def reply(
         self, *, address: Optional[str], status: StatusCode, data: Any
@@ -183,7 +196,7 @@ class Server(ABCServer):
         if data is not NoValue:
             payload["d"] = data
 
-        await self._send(payload)
+        await self._send(self._serializer.dumps(payload))  # type: ignore
 
     def close(self) -> None:
         """Closes connections stopping server."""
