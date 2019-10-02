@@ -54,4 +54,4 @@ tags
 # Packaging
 dist/
 build/
-*.egg_info/
+*.egg-info/
