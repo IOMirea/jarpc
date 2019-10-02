@@ -11,7 +11,6 @@ REDIS_PORT = 6379
 
 COMMAND_PING = 0
 COMMAND_SLOW_PING = 1
-COMMAND_MULTIPLE_RESPONSES = 2
 
 server = Server("example", node=f"example-{os.getpid()}")
 
@@ -34,17 +33,6 @@ async def slow_ping(req: Request) -> str:
     await asyncio.sleep(2)
 
     return "pong"
-
-
-@server.command(COMMAND_MULTIPLE_RESPONSES)
-async def multiple_responses(req: Request) -> None:
-    """Sends random number 5 times."""
-
-    print("Received MULTIPLE_RESPONSES")
-
-    for i in range(5):
-        await req.reply(random.randint(0, 42))
-        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
