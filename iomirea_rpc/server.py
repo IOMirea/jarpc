@@ -98,6 +98,8 @@ class Server(ABCServer):
     async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
+        """Starts command processing."""
+
         self._call_conn = await aioredis.create_redis(
             redis_address, loop=self._loop, **kwargs
         )
@@ -114,6 +116,8 @@ class Server(ABCServer):
         await self._handler(channels[0])
 
     def run(self, *args: Any, **kwargs: Any) -> None:
+        """A blocking way to start server. Takes same arguments as Server.start."""
+
         self._loop.run_until_complete(self.start(*args, **kwargs))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:

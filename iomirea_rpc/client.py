@@ -153,10 +153,10 @@ class Client(ABCClient):
 
         self._listeners: Dict[str, asyncio.Queue[Response]] = {}
 
-    async def run(
+    async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
-        """Launches client."""
+        """Starts client."""
 
         self._call_conn = await aioredis.create_redis(
             redis_address, loop=self._loop, **kwargs
@@ -171,6 +171,11 @@ class Client(ABCClient):
         log.info(f"calling: {self._call_address}")
 
         await self._handler(channels[0])
+
+    def run(self, *args: Any, **kwargs: Any) -> None:
+        """A blocking way to start client. Takes same arguments as Server.start."""
+
+        self._loop.run_until_complete(self.start(*args, **kwargs))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():

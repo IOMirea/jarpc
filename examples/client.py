@@ -37,5 +37,5 @@ if __name__ == "__main__":
 
     client = Client("example", loop=loop, default_timeout=5, default_expect_responses=1)
 
-    loop.create_task(client.run((REDIS_HOST, REDIS_PORT)))
+    loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
     loop.run_until_complete(call_commands(client))
