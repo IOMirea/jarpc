@@ -25,13 +25,6 @@ async def call_commands(client: Client) -> None:
     print("Calling SLOW_PING: ", end="", flush=True)
     print(await client.call(COMMAND_SLOW_PING, timeout=1))
 
-    print("Calling MULTIPLE_RESPONSES: ", end="", flush=True)
-    async for resp in client.call(
-        COMMAND_MULTIPLE_RESPONSES, timeout=10, expect_responses=5
-    ):
-        print(resp.data, end=" ", flush=True)
-    print()
-
     print("Calling unknown command: ", end="", flush=True)
     print(await client.call(COMMAND_FIX_CODE))
 

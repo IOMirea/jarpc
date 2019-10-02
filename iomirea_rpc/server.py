@@ -114,7 +114,7 @@ class Server(ABCServer):
         await self._handler(channels[0])
 
     def run(self, *args: Any, **kwargs: Any) -> None:
-        self.loop.run_until_complete(self.start(*args, **kwargs))
+        self._loop.run_until_complete(self.start(*args, **kwargs))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
