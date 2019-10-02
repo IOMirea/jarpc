@@ -21,9 +21,9 @@ async def call_commands(client: Client) -> None:
     ping_data = {"message": input("Enter message to send or leave blank: ")}
 
     print("Calling PING: ", end="", flush=True)
-    print(await client.call(COMMAND_PING, ping_data, timeout=1).flatten())
+    print(await client.call(COMMAND_PING, ping_data, timeout=1))
     print("Calling SLOW_PING: ", end="", flush=True)
-    print(await client.call(COMMAND_SLOW_PING, timeout=1).flatten())
+    print(await client.call(COMMAND_SLOW_PING, timeout=1))
 
     # wait for slow ping (response will be ignored because timeout ends before it responds)
     print("Waiting ...")
@@ -35,7 +35,7 @@ async def call_commands(client: Client) -> None:
     print()
 
     print("Calling unknown command: ", end="", flush=True)
-    print(await client.call(COMMAND_FIX_CODE, timeout=1).flatten())
+    print(await client.call(COMMAND_FIX_CODE, timeout=1))
 
     # exit
     client.close()

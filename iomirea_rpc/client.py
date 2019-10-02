@@ -24,7 +24,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, List, Tuple, Union, Optional
+from typing import Any, Dict, List, Tuple, Union, Optional, Generator
 
 import aioredis
 
@@ -33,7 +33,15 @@ from .response import Response
 log = logging.getLogger(__name__)
 
 
-class AsyncTimeoutResponseIterator:
+class ResponsesWithTimeout:
+    """
+    Provides access to command responses for limited time.
+
+    Instances can be awaited to get all responses at once or used as async iterator to
+    process responses as soon as they come.
+
+    If timeout is not provided, response processing is skipped completely.
+    """
 
     __slots__ = ("_client", "_address", "_timeout", "_start_time", "_queue")
 
@@ -50,12 +58,13 @@ class AsyncTimeoutResponseIterator:
             )
             self._client._add_queue(address, self._queue)
 
-    async def flatten(self) -> List[Response]:
-        """Convenience function that exhausts iterator and returns all responses."""
+    def __await__(self) -> Generator[Any, None, List[Response]]:
+        async def coro() -> List[Response]:
+            return [resp async for resp in self]
 
-        return [resp async for resp in self]
+        return coro().__await__()
 
-    def __aiter__(self) -> AsyncTimeoutResponseIterator:
+    def __aiter__(self) -> ResponsesWithTimeout:
         return self
 
     async def __anext__(self) -> Response:
@@ -139,7 +148,7 @@ class Client:
         command_index: int,
         data: Dict[str, Any] = {},
         timeout: Optional[int] = None,
-    ) -> AsyncTimeoutResponseIterator:
+    ) -> ResponsesWithTimeout:
         """
         Calls command and returns received responses. Skips response processing
         completely if timeout is None.
@@ -157,13 +166,15 @@ class Client:
 
         asyncio.create_task(self._send(payload))
 
-        return AsyncTimeoutResponseIterator(self, address, timeout)
+        return ResponsesWithTimeout(self, address, timeout)
 
     def close(self) -> None:
+        """Closes connections stopping client."""
+
         log.info("closing connections")
 
         self._call_conn.close()
         self._resp_conn.close()
 
     def __repr__(self) -> str:
-        return f"<Client call_address={self._call_address} resp_addrss={self._resp_address}>"
+        return f"<{self.__class__.__name__} call_address={self._call_address} resp_address={self._resp_address}>"

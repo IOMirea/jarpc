@@ -153,10 +153,12 @@ class Server:
         await self._respond(StatusCode.SUCCESS, request.address, data)
 
     def close(self) -> None:
+        """Closes connections stopping server."""
+
         log.info("closing connections")
 
         self._call_conn.close()
         self._resp_conn.close()
 
     def __repr__(self) -> str:
-        return f"<Server call_address={self._call_address} resp_addrss={self._resp_address} node={self.node}>"
+        return f"<{self.__class__.__name__} call_address={self._call_address} resp_address={self._resp_address} node={self.node}>"

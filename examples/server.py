@@ -46,6 +46,7 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
 
     server = Server("example", loop=loop, node=f"example-{os.getpid()}")
+
     server.register_command(COMMAND_PING, ping)
     server.register_command(COMMAND_SLOW_PING, slow_ping)
     server.register_command(COMMAND_MULTIPLE_RESPONSES, multiple_responses)
