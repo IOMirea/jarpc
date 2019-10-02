@@ -21,7 +21,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, Tuple, Union, Optional
+from typing import Any, Dict, Tuple, Union, Callable, Optional
 
 import aioredis
 
@@ -64,6 +64,12 @@ class Server:
 
         self._commands: Dict[int, _CommandType] = {}
 
+    def command(self, index: int) -> Callable[[_CommandType], None]:
+        def inner(func: _CommandType) -> None:
+            self.register_command(index, func)
+
+        return inner
+
     def register_command(self, index: int, fn: _CommandType) -> int:
         if index in self._commands:
             raise ValueError(f"Command with index {index} already registered")
@@ -78,7 +84,7 @@ class Server:
 
         return self._commands.pop(index)
 
-    async def run(
+    async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
         self._call_conn = await aioredis.create_redis(
@@ -95,6 +101,9 @@ class Server:
         log.info(f"responding: {self._resp_address}")
 
         await self._handler(channels[0])
+
+    def run(self, *args: Any, **kwargs: Any) -> None:
+        self.loop.run_until_complete(self.start(*args, **kwargs))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
