@@ -135,8 +135,8 @@ class Server(ABCServer):
         async for msg in channel.iter():
             try:
                 request = Request.from_data(
-                    self, self._serializer.loads(msg)
-                )  # type: ignore
+                    self, self._serializer.loads(msg)  # type: ignore
+                )
             except Exception as e:
                 log.error(f"error parsing request: {e.__class__.__name__}: {e}")
 

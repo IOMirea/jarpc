@@ -193,8 +193,8 @@ class Client(ABCClient):
         async for msg in channel.iter():
             try:
                 response = Response.from_data(
-                    self._serializer.loads(msg)
-                )  # type: ignore
+                    self._serializer.loads(msg)  # type: ignore
+                )
             except Exception as e:
                 log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
