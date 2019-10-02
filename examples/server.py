@@ -1,7 +1,6 @@
 # NOTE: see client.py example
 
 import os
-import random
 import asyncio
 
 from iomirea_rpc import Server, Request
