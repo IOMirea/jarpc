@@ -29,7 +29,7 @@ async def slow_ping(req: Request) -> str:
 
     await asyncio.sleep(2)
 
-    return "ping"
+    return "pong"
 
 
 async def multiple_responses(req: Request) -> None:

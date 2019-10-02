@@ -148,7 +148,7 @@ class Server:
         await self._resp_conn.publish_json(self._resp_address, payload)
 
     async def reply(
-        self, *, address: Optional[str], status: StatusCode, data: Any = NoValue
+        self, *, address: Optional[str], status: StatusCode, data: Any
     ) -> None:
         if address is None:
             log.debug("no address, unable to respond")

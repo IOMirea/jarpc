@@ -45,7 +45,7 @@ class ResponsesWithTimeout:
 
     __slots__ = ("_client", "_address", "_timeout", "_start_time", "_queue")
 
-    def __init__(self, client: Client, address: str, timeout: Optional[int] = None):
+    def __init__(self, client: Client, address: str, timeout: Optional[float] = None):
         self._client = client
         self._address = address
         self._timeout = timeout
@@ -149,7 +149,7 @@ class Client:
         self,
         command_index: int,
         data: Dict[str, Any] = {},
-        timeout: Optional[int] = None,
+        timeout: Optional[float] = None,
     ) -> ResponsesWithTimeout:
         """
         Calls command and returns received responses. Skips response processing
