@@ -121,10 +121,12 @@ class Client:
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                response = Response.from_json(json.loads(msg))
+                response = Response.from_data(json.loads(msg))
             except Exception as e:
                 log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
+
+            log.info(f"received response from node {response.node}")
 
             queue = self._listeners.get(response._address)
             if queue is None:
