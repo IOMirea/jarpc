@@ -18,13 +18,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import Any, Dict, Optional
 
+from .abc import ABCServer
 from .enums import StatusCode
 from .constants import NoValue
-
-if TYPE_CHECKING:
-    from .server import Server
 
 
 class Request:
@@ -32,7 +30,7 @@ class Request:
     __slots__ = ("server", "command_index", "_address", "_data")
 
     def __init__(
-        self, server: Server, command_index: int, address: Optional[str], data: Any
+        self, server: ABCServer, command_index: int, address: Optional[str], data: Any
     ):
         self.server = server
 
@@ -42,7 +40,7 @@ class Request:
         self._data = data
 
     @classmethod
-    def from_data(cls, server: Server, payload: Dict[str, Any]) -> Request:
+    def from_data(cls, server: ABCServer, payload: Dict[str, Any]) -> Request:
         return cls(
             server=server,
             command_index=payload["c"],

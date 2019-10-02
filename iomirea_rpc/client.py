@@ -28,35 +28,49 @@ from typing import Any, Dict, List, Tuple, Union, Optional, Generator
 
 import aioredis
 
+from .abc import ABCClient, ResponsesIterator
 from .response import Response
 
 log = logging.getLogger(__name__)
 
 
-class ResponsesWithTimeout:
-    """
-    Provides access to command responses for limited time.
+class ResponsesWithTimeout(ResponsesIterator):
+    """Provides access to command responses for limited time."""
 
-    Instances can be awaited to get all responses at once or used as async iterator to
-    process responses as soon as they come.
+    __slots__ = (
+        "_client",
+        "_address",
+        "_timeout",
+        "_expect_responses",
+        "_responses_seen",
+        "_start_time",
+        "_queue",
+    )
 
-    If timeout is not provided, response processing is skipped completely.
-    """
-
-    __slots__ = ("_client", "_address", "_timeout", "_start_time", "_queue")
-
-    def __init__(self, client: Client, address: str, timeout: Optional[float] = None):
+    def __init__(
+        self,
+        client: Client,
+        queue: asyncio.Queue[Response],
+        address: str,
+        timeout: float,
+        expect_responses: Optional[int] = None,
+    ):
         self._client = client
+        self._queue = queue
         self._address = address
         self._timeout = timeout
 
-        self._start_time = time.time()
+        if expect_responses is None:
+            expect_responses = 0
 
-        if timeout is not None:
-            self._queue: asyncio.Queue[Response] = asyncio.Queue(
-                loop=self._client._loop
-            )
-            self._client._add_queue(address, self._queue)
+        if expect_responses < 0:
+            raise ValueError("expect_responses should be >= 0")
+
+        self._expect_responses = expect_responses
+
+        self._responses_seen = 0
+
+        self._start_time = time.time()
 
     def __await__(self) -> Generator[Any, None, List[Response]]:
         async def coro() -> List[Response]:
@@ -68,34 +82,74 @@ class ResponsesWithTimeout:
         return self
 
     async def __anext__(self) -> Response:
-        if self._timeout is None:
+        if (
+            self._expect_responses != 0
+            and self._expect_responses == self._responses_seen
+        ):
             raise StopAsyncIteration
 
-        time_remaining = self._timeout - time.time() + self._start_time
-
         try:
-            return await asyncio.wait_for(
-                self._queue.get(), timeout=time_remaining, loop=self._client._loop
+            resp = await asyncio.wait_for(
+                self._queue.get(), timeout=self.time_remaining, loop=self._client._loop
             )
         except asyncio.TimeoutError:
             raise StopAsyncIteration
 
+        self._responses_seen += 1
+
+        return resp
+
     def __del__(self) -> None:
         self._client._remove_queue(self._address)
 
+    @property
+    def responses_seen(self) -> int:
+        return self._responses_seen
 
-class Client:
+    @property
+    def time_remaining(self) -> float:
+        return self._timeout - time.time() + self._start_time
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} time_remaining={self.time_remaining} responses_seen={self.responses_seen}>"
+
+
+class EmtpyResponses(ResponsesIterator):
+    """Looks and behaves the same way as ResponsesWithTimeout, but is empty."""
+
+    def __await__(self) -> Generator[Any, None, List[Response]]:
+        async def coro() -> List[Response]:
+            return []
+
+        return coro().__await__()
+
+    def __aiter__(self) -> EmtpyResponses:
+        return self
+
+    async def __anext__(self) -> Response:
+        raise StopAsyncIteration
+
+
+class Client(ABCClient):
     """RPC client sends commands to servers and listens for responses."""
 
     def __init__(
         self,
         channel_name: str,
-        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop(),
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        default_timeout: Optional[int] = None,
+        default_expect_responses: Optional[int] = None,
     ):
         self._call_address = f"rpc:{channel_name}"
         self._resp_address = f"{self._call_address}-response"
 
-        self._loop = loop
+        if loop is None:
+            self._loop = asyncio.get_event_loop()
+        else:
+            self._loop = loop
+
+        self._default_timeout = default_timeout
+        self._default_expect_responses = default_expect_responses
 
         self._listeners: Dict[str, asyncio.Queue[Response]] = {}
 
@@ -150,7 +204,8 @@ class Client:
         command_index: int,
         data: Dict[str, Any] = {},
         timeout: Optional[float] = None,
-    ) -> ResponsesWithTimeout:
+        expect_responses: Optional[int] = None,
+    ) -> ResponsesIterator:
         """
         Calls command and returns received responses. Skips response processing
         completely if timeout is None.
@@ -160,15 +215,28 @@ class Client:
 
         payload = {"c": command_index, "d": data}
 
+        if timeout is None:
+            timeout = self._default_timeout
+
         if timeout is not None:
             address = uuid.uuid4().hex
             payload["a"] = address
-        else:
-            address = ""
+
+            queue: asyncio.Queue[Response] = asyncio.Queue(loop=self._loop)
+            self._add_queue(address, queue)
 
         asyncio.create_task(self._send(payload))
 
-        return ResponsesWithTimeout(self, address, timeout)
+        if timeout is None:
+            return EmtpyResponses()
+        else:
+            return ResponsesWithTimeout(
+                self,
+                queue,
+                address,
+                timeout,
+                expect_responses or self._default_expect_responses,
+            )
 
     def close(self) -> None:
         """Closes connections stopping client."""

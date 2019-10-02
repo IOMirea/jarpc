@@ -25,6 +25,7 @@ from typing import Any, Dict, Tuple, Union, Optional
 
 import aioredis
 
+from .abc import ABCServer
 from .enums import StatusCode
 from .request import Request
 from .constants import NoValue
@@ -39,7 +40,7 @@ _CommandType = Any
 #     def __call__(self, __request: Request, **kwargs: Any) -> Any:
 #         ...
 #
-# mypy_extensions.TypeVar
+# mypy_extensions.KwArg
 # _CommandType = Callable[["Server", KwArg(Any)], Awaitable[Any]]
 #
 # typing.TypeVar ?
@@ -47,20 +48,30 @@ _CommandType = Any
 log = logging.getLogger(__name__)
 
 
-class Server:
+class Server(ABCServer):
     """RPC server listens for commands from clients and sends responses."""
+
+    __slots__ = ("_call_address", "_resp_address", "_loop", "_node", "_commands")
 
     def __init__(
         self,
         channel_name: str,
-        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop(),
-        node: str = uuid.uuid4().hex,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        node: Optional[str] = None,
     ):
+
         self._call_address = f"rpc:{channel_name}"
         self._resp_address = f"{self._call_address}-response"
 
-        self.loop = loop
-        self.node = node
+        if loop is None:
+            self._loop = asyncio.get_event_loop()
+        else:
+            self._loop = loop
+
+        if node is None:
+            self._node = uuid.uuid4().hex
+        else:
+            self._node = node
 
         self._commands: Dict[int, _CommandType] = {}
 
@@ -82,10 +93,10 @@ class Server:
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
         self._call_conn = await aioredis.create_redis(
-            redis_address, loop=self.loop, **kwargs
+            redis_address, loop=self._loop, **kwargs
         )
         self._resp_conn = await aioredis.create_redis(
-            redis_address, loop=self.loop, **kwargs
+            redis_address, loop=self._loop, **kwargs
         )
 
         channels = await self._call_conn.subscribe(self._call_address)
@@ -168,6 +179,10 @@ class Server:
 
         self._call_conn.close()
         self._resp_conn.close()
+
+    @property
+    def node(self) -> str:
+        return self._node
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} call_address={self._call_address} resp_address={self._resp_address} node={self.node}>"
