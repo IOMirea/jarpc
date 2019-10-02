@@ -50,3 +50,8 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# Packaging
+dist/
+build/
+*.egg_info/
