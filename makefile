@@ -5,9 +5,16 @@ PYTHONPATH=$(shell echo " pwd :$$PYTHONPATH")
 COVERAGE_DIR='coverage_data'
 TEST_DIR=tests/unit
 
+.PHONY: preInstall
+preInstall:
+	pre-commit run --all-files
+  	pip3 install .
+  	pytest --cov --cov-report=xml
+	pip3 install -r requirements.txt
+
 .PHONY: createVirtualenv
 createVirtualenv:
-	rm -rf env
+	rm -rf env-
 	python3 -m pip install --user virtualenv
 	python3 -m venv env
 	source env/bin/activate
@@ -17,6 +24,8 @@ createVirtualenv:
 ########
 .PHONY: test
 test: .coverage
+	@echo
+	@echo '#################'
 	@echo 'Testing Completed'
 
 .coverage: cleanCoverage

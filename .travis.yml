@@ -28,9 +28,9 @@ install:
   - pip3 install pre-commit pytest pytest-cov codecov
 
 script:
-  - pre-commit run --all-files
-  - pip3 install .
-  - pytest --cov --cov-report=xml
+  - make preInstall
+  - make createVirtualenv
+  - make test
 
 after_script:
   - codecov -f coverage.xml
