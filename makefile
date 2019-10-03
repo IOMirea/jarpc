@@ -10,6 +10,7 @@ createVirtualenv:
 	rm -rf env
 	python3 -m pip install --user virtualenv
 	python3 -m venv env
+	source env/bin/activate
 
 ########
 # TEST #
@@ -28,10 +29,6 @@ cleanCoverage:
 	@echo 'cleaning coverage files ...'
 	@rm -rf $(COVERAGE_DIR)
 	@rm -rf .coverage
-
-# .PHONY: openReport
-# openReport:
-# 	coverage report -m 
 
 .PHONY: help
 help:

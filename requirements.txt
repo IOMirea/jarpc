@@ -7,3 +7,4 @@
 aioredis==1.2.0
 async-timeout==3.0.1      # via aioredis
 hiredis==1.0.0            # via aioredis
+coverage==4.5.4           # need it for running tests
