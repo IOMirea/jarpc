@@ -8,7 +8,7 @@ TEST_DIR=tests/unit
 .PHONY: createVirtualenv
 createVirtualenv:
 	rm -rf env/
-	python3 -m pip install virtualenv
+	python3 -m pip install --user virtualenv
 	python3 -m venv env
 	source env/bin/activate
 
