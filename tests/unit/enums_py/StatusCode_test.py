@@ -1,6 +1,4 @@
 import unittest
-import sys
-sys.path.append("..")
 from iomirea_rpc.enums import StatusCode
 
 
