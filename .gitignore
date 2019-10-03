@@ -54,3 +54,8 @@ tags
 
 # IDEs
 .vscode
+
+# Packaging
+dist/
+build/
+*.egg_info/
