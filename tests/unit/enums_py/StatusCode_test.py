@@ -1,10 +1,12 @@
 import unittest
 from iomirea_rpc.enums import StatusCode
 
+
 class enums_StatusCode_TestCase(unittest.TestCase):
     """
     Testing the StatusCode Class
     """
+
     all_enumaration_types = [
         StatusCode.SUCCESS,
         StatusCode.BAD_FORMAT,
@@ -17,7 +19,7 @@ class enums_StatusCode_TestCase(unittest.TestCase):
         """
         Should ensure that variables are set to their expected values
         """
-        
+
         enum_val = [0, 1, 2, 3, 4]
         for enum in self.all_enumaration_types:
             self.assertEqual(enum.value, enum_val[enum.value])

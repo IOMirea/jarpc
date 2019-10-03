@@ -31,8 +31,6 @@ script:
   - pre-commit run --all-files
   - pip3 install .
   - pytest --cov --cov-report=xml
-  - make createVirtualenv
-  - make test
 
 after_script:
   - codecov -f coverage.xml
