@@ -39,5 +39,6 @@ class enums_StatusCode_TestCase(unittest.TestCase):
         for enum in all_enumaration_types:
             self.assertEqual(type(enum), StatusCode)
 
+
 if __name__ == '__main__':
     unittest.main()
