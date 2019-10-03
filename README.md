@@ -1,7 +1,10 @@
 # yarpc
+
 ## Warning: project is in early development stage, expect bugs and frequent breaking changes
 
 yarpc - Yet another python RPC library based on redis pubsub. It is built with [aioredis](https://github.com/aio-libs/aioredis).
+
+<img src="https://raw.githubusercontent.com/IOMirea/yarpc/master/docs/logo.png" height="100">
 
 [![Build Status](https://travis-ci.org/IOMirea/yarpc.svg?branch=master)](https://travis-ci.org/IOMirea/yarpc)
 [![codecov](https://codecov.io/gh/IOMirea/yarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/yarpc)
@@ -25,7 +28,6 @@ Waits for commands from clients, responds to them.
 
 ##### ClientServer
 Combines both client and server. It can send commands to servers as well as respond to clients.
-
 
 Examples of running in each mode can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).
 
