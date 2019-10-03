@@ -130,7 +130,7 @@ class Server(ABCServer):
         await self._handler(channels[0])
 
     def run(self, *args: Any, **kwargs: Any) -> None:
-        """A blocking way to start server. Takes same arguments as Client.start."""
+        """A blocking way to start server. Takes same arguments as Server.start."""
 
         self._loop.run_until_complete(self.start(*args, **kwargs))
 
