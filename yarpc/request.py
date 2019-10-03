@@ -1,5 +1,5 @@
 """
-yarpc - RPC system for IOMirea messenger
+yarpc - yet another RPC
 Copyright (C) 2019  Eugene Ershov
 
 This program is free software: you can redistribute it and/or modify
