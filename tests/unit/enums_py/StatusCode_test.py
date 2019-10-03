@@ -12,7 +12,7 @@ class enums_StatusCode_TestCase(unittest.TestCase):
         StatusCode.BAD_FORMAT,
         StatusCode.UNKNOWN_COMMAND,
         StatusCode.BAD_PARAMS,
-        StatusCode.INTERNAL_ERROR
+        StatusCode.INTERNAL_ERROR,
     ]
 
     def test_enums_variables_values(self):
@@ -33,5 +33,5 @@ class enums_StatusCode_TestCase(unittest.TestCase):
             self.assertEqual(type(enum), StatusCode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
