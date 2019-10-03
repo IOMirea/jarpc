@@ -23,7 +23,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, List, Tuple, Union, Optional, Generator
+from typing import Any, Dict, List, Tuple, Union, Callable, Optional, Generator
 
 import aioredis
 
@@ -32,7 +32,8 @@ from .response import Response
 
 log = logging.getLogger(__name__)
 
-_SerializerType = Any  # see server.py
+_Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]  # see server.py
+_Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
 
 
 class ResponsesWithTimeout(ResponsesIterator):
@@ -137,7 +138,8 @@ class Client(ABCClient):
     def __init__(
         self,
         channel_name: str,
-        serializer: Optional[_SerializerType] = None,
+        loads: Optional[_Deserializer] = None,
+        dumps: Optional[_Serializer] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         default_timeout: Optional[int] = None,
         default_expect_responses: Optional[int] = None,
@@ -150,15 +152,16 @@ class Client(ABCClient):
         else:
             self._loop = loop
 
-        if serializer is None:
+        if loads and dumps:
+            self._loads = loads
+            self._dumps = dumps
+        elif loads is None and dumps is None:
             import marshal
 
-            self._serializer = marshal
+            self._loads = marshal.loads
+            self._dumps = marshal.dumps
         else:
-            if not hasattr(serializer, "loads") or not hasattr(serializer, "dumps"):
-                raise ValueError("Serializer does not implement loads and dumps.")
-
-            self._serializer = serializer
+            raise ValueError("You cannot define only one of dumps and loads.")
 
         self._default_timeout = default_timeout
         self._default_expect_responses = default_expect_responses
@@ -192,9 +195,7 @@ class Client(ABCClient):
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                response = Response.from_data(
-                    self._serializer.loads(msg)  # type: ignore
-                )
+                response = Response.from_data(self._loads(msg))
             except Exception as e:
                 log.error(f"error parsing response: {e.__class__.__name__}: {e}")
                 continue
@@ -214,7 +215,7 @@ class Client(ABCClient):
     def _remove_queue(self, address: str) -> None:
         self._listeners.pop(address, None)
 
-    async def _send(self, payload: bytes) -> None:
+    async def _send(self, payload: Union[bytes, str]) -> None:
         num_listeners = await self._call_conn.publish(self._call_address, payload)
         log.debug(f"delivered to {num_listeners} listeners")
 
@@ -244,7 +245,7 @@ class Client(ABCClient):
             queue: asyncio.Queue[Response] = asyncio.Queue(loop=self._loop)
             self._add_queue(address, queue)
 
-        asyncio.create_task(self._send(self._serializer.dumps(payload)))  # type: ignore
+        asyncio.create_task(self._send(self._dumps(payload)))
 
         if timeout is None:
             return EmptyResponses()

@@ -29,8 +29,9 @@ from .enums import StatusCode
 from .request import Request
 from .constants import NoValue
 
+_Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
+_Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
 _CommandType = Any
-_SerializerType = Any  # ModuleType or object with loads and dumps, TODO
 
 # TODO: annotate _CommandType properly.
 # Possible solutions (do not work for different reasons)
@@ -56,7 +57,8 @@ class Server(ABCServer):
     def __init__(
         self,
         channel_name: str,
-        serializer: Optional[_SerializerType] = None,
+        loads: Optional[_Deserializer] = None,
+        dumps: Optional[_Serializer] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
     ):
@@ -69,15 +71,16 @@ class Server(ABCServer):
         else:
             self._loop = loop
 
-        if serializer is None:
+        if loads and dumps:
+            self._loads = loads
+            self._dumps = dumps
+        elif loads is None and dumps is None:
             import marshal
 
-            self._serializer = marshal
+            self._loads = marshal.loads
+            self._dumps = marshal.dumps
         else:
-            if not hasattr(serializer, "loads") or not hasattr(serializer, "dumps"):
-                raise ValueError("Serializer does not implement loads and dumps.")
-
-            self._serializer = serializer
+            raise ValueError("You cannot define only one of dumps and loads.")
 
         if node is None:
             self._node = uuid.uuid4().hex
@@ -134,9 +137,7 @@ class Server(ABCServer):
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             try:
-                request = Request.from_data(
-                    self, self._serializer.loads(msg)  # type: ignore
-                )
+                request = Request.from_data(self, self._loads(msg))
             except Exception as e:
                 log.error(f"error parsing request: {e.__class__.__name__}: {e}")
 
@@ -181,7 +182,7 @@ class Server(ABCServer):
 
             await request.reply(command_result)
 
-    async def _send(self, payload: bytes) -> None:
+    async def _send(self, payload: Union[bytes, str]) -> None:
         await self._resp_conn.publish(self._resp_address, payload)
 
     async def reply(
@@ -196,7 +197,7 @@ class Server(ABCServer):
         if data is not NoValue:
             payload["d"] = data
 
-        await self._send(self._serializer.dumps(payload))  # type: ignore
+        await self._send(self._dumps(payload))
 
     def close(self) -> None:
         """Closes connections stopping server."""
