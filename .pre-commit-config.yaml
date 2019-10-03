@@ -16,6 +16,7 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
       - id: end-of-file-fixer
+        exclude_types: [svg]
       - id: flake8
 
   - repo: https://github.com/pre-commit/mirrors-mypy
