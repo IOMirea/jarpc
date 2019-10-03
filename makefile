@@ -29,6 +29,10 @@ cleanCoverage:
 	@rm -rf $(COVERAGE_DIR)
 	@rm -rf .coverage
 
+# .PHONY: openReport
+# openReport:
+# 	coverage report -m 
+
 .PHONY: help
 help:
 	@echo 'List all the make tergets available for use with "make list"'
