@@ -1,4 +1,4 @@
-from iomirea_rpc import Client
+from yarpc import Client
 
 
 def test_creation():

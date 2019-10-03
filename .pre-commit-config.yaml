@@ -23,4 +23,4 @@ repos:
     rev: v0.730
     hooks:
       - id: mypy
-        files: ^iomirea_rpc/.+$
+        files: ^yarpc/.+$
