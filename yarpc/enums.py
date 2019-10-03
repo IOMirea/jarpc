@@ -1,5 +1,5 @@
 """
-IOMirea-rpc - RPC system for IOMirea messenger
+yarpc - RPC system for IOMirea messenger
 Copyright (C) 2019  Eugene Ershov
 
 This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,12 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from .enums import StatusCode
-from .client import Client
-from .server import Server
-from .request import Request
-from .response import Response
+from enum import Enum
 
-__all__ = ("StatusCode", "Client", "Server", "Request", "Response")
+
+class StatusCode(Enum):
+    SUCCESS = 0
+    BAD_FORMAT = 1
+    UNKNOWN_COMMAND = 2
+    BAD_PARAMS = 3
+    INTERNAL_ERROR = 4
