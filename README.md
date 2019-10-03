@@ -7,7 +7,7 @@ yarpc - Yet another python RPC library based on redis pubsub. It is built with [
 [![codecov](https://codecov.io/gh/IOMirea/yarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/yarpc)
 
 ### Installation
-Library can be installed with the following command `pip install git+https://github.com/IOMirea/yarpc.git#egg=yarpc`
+Library can be installed from repository: `pip install git+https://github.com/IOMirea/yarpc.git#egg=yarpc` (PyPI release soon)
 
 ### Running
 There are 3 run modes: `Client`, `Server` and `ClientServer`.
@@ -18,18 +18,19 @@ There are 3 run modes: `Client`, `Server` and `ClientServer`.
 | Receiving commands |        |    ✔️   | not implemented |
 
 ##### Client
-Sends commands to servers and waites for responses.
+Sends commands to servers and waits for responses.
 
 ##### Server
-Waits for commands from clients, runs functions and responds.
+Waits for commands from clients, responds to them.
 
 ##### ClientServer
-Combines both client and server. It can send commands to servers and respond to clients at the same time.
+Combines both client and server. It can send commands to servers as well as respond to clients.
 
-Examples of running in each can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).
+
+Examples of running in each mode can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).
 
 ## Contributing
 Feel free to open an issue or submit a pull request.  
 
 ## License
-Source code is available under GPL v3.0 license, you can get it [here](https://github.com/IOMirea/yarpc/blob/master/LICENSE).
+Source code is available under GPL v3.0 license, you can see it [here](https://github.com/IOMirea/yarpc/blob/master/LICENSE).
