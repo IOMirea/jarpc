@@ -23,7 +23,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Dict, List, Tuple, Union, Callable, Optional, Generator
+from typing import Any, Callable, Dict, List, Tuple, Union, Optional, Generator
 
 import aioredis
 
