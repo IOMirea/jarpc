@@ -4,6 +4,7 @@
 IOMirea-rpc is RPC library based on redis pubsub built with [aioredis](https://github.com/aio-libs/aioredis).
 
 [![Build Status](https://travis-ci.org/IOMirea/rpc.svg?branch=master)](https://travis-ci.org/IOMirea/rpc)
+[![codecov](https://codecov.io/gh/IOMirea/rpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/rpc)
 
 ### Installation
 Library can be installed with the following command `pip install git+https://github.com/IOMirea/rpc.git#egg=iomirea_rpc`
