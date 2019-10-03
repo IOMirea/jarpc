@@ -1,8 +1,4 @@
 import unittest
-from unittest import mock
-
-import sys
-sys.path.append("..")
 from iomirea_rpc.enums import StatusCode
 
 class enums_StatusCode_TestCase(unittest.TestCase):

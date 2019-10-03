@@ -3,7 +3,7 @@ SHELL:=/usr/bin/env bash
 # variables
 PYTHONPATH=$(shell echo " pwd :$$PYTHONPATH")
 COVERAGE_DIR='coverage_data'
-TEST_DIR=tests
+TEST_DIR=tests/unit
 
 .PHONY: createVirtualenv
 createVirtualenv:
