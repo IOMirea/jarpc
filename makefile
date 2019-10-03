@@ -8,13 +8,12 @@ TEST_DIR=tests/unit
 .PHONY: preInstall
 preInstall:
 	pre-commit run --all-files
-  	pip3 install .
-  	pytest --cov --cov-report=xml
-	pip3 install -r requirements.txt
+	pip3 install .
+	pytest --cov --cov-report=xml
 
 .PHONY: createVirtualenv
 createVirtualenv:
-	rm -rf env-
+	rm -rf env/
 	python3 -m pip install --user virtualenv
 	python3 -m venv env
 	source env/bin/activate
