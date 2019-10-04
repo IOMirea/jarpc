@@ -18,7 +18,7 @@ createVirtualenv:
 .PHONY: test
 test: .coverage
 	@echo
-	@echo '#################'
+	@echo '-----------------'
 	@echo 'Testing Completed'
 
 .coverage: cleanCoverage
