@@ -30,6 +30,7 @@ install:
 script:
   - pre-commit run --all-files
   - pip3 install .
+  - pip3 install coverage
   - pytest --cov --cov-report=xml
   - make test
 

@@ -24,7 +24,6 @@ test: .coverage
 .coverage: cleanCoverage
 	@PYTHONBREAKPOINT=0 \
 	PYTHONPATH=$(PYTHONPATH)
-	pip3 install coverage
 	coverage run --branch -m unittest discover --verbose --pattern '*_test.py' --start-directory $(TEST_DIR) --top-level-directory '.'
 
 .PHONY: cleanCoverage
