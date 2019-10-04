@@ -9,8 +9,6 @@ with open("requirements.txt") as f:
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-test_requires = ['coverage']
-
 setuptools.setup(
     name="iomirea_rpc",
     version="0.2.0",
@@ -23,9 +21,6 @@ setuptools.setup(
     python_requires=">=3.7.1",
     packages=setuptools.find_packages(),
     license="GPLv3",
-    extras_require={
-        'test': 'coverage'
-    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
