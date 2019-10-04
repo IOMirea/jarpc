@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>yarpc :: Welcome to yarpc’s documentation!</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="_static/img/favicon-16x16.png">
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+
+  <link rel="stylesheet" href="_static/css/insegel.css"/>
+
+  <script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'',
+        VERSION:'0.3.0a',
+        LANGUAGE:'None',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+    };
+  </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script>
+
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="#"><img src="_static/logo.png"></a>
+          
+
+      </div>
+      <div id="project-container">
+          <h1>yarpc 0.3.0a Documentation</h1>
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content-header">
+          <h1>Welcome to yarpc’s documentation!</h1>
+        </div>
+        <div id="main-content">
+          
+  <div class="section" id="welcome-to-yarpc-s-documentation">
+<h1>Welcome to yarpc’s documentation!<a class="headerlink" href="#welcome-to-yarpc-s-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>This is the documentation for yarpc, a library for asynchronous RPC via <a class="reference external" href="https://redis.io/">Redis</a> pubsub channels.</p>
+<p>It supports 2 runmodes: Client and Server. Support for ClientServer is planned.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>yarpc requires a Python version of 3.7 or higher.</p>
+</div>
+<div class="section" id="installing">
+<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>We currently only support installing directly from GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">IOMirea</span><span class="o">/</span><span class="n">yarpc</span>
+</pre></div>
+</div>
+<p>You’ll also need a working local installation of Redis.</p>
+</div>
+<div class="section" id="quick-example">
+<h2>Quick example<a class="headerlink" href="#quick-example" title="Permalink to this headline">¶</a></h2>
+<p>Setup a quick Redis instance via <a class="reference external" href="https://docker.com/">Docker</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">--</span><span class="n">rm</span> <span class="o">--</span><span class="n">name</span> <span class="n">redis</span> <span class="o">-</span><span class="n">d</span> <span class="o">-</span><span class="n">p</span> <span class="mi">6379</span><span class="p">:</span><span class="mi">6379</span> <span class="n">redis</span><span class="p">:</span><span class="mf">5.0</span><span class="o">.</span><span class="mi">6</span><span class="o">-</span><span class="n">alpine</span>
+</pre></div>
+</div>
+<p>Client example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: server should be started first, check server.py example</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="kn">from</span> <span class="nn">yarpc</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">REDIS_HOST</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+<span class="n">REDIS_PORT</span> <span class="o">=</span> <span class="mi">6379</span>
+
+<span class="n">COMMAND_PING</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">COMMAND_SLOW_PING</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">COMMAND_FIX_CODE</span> <span class="o">=</span> <span class="mi">999</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">call_commands</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="c1"># wait for client to establish connection</span>
+    <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">ping_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter message to send or leave blank: &quot;</span><span class="p">)}</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling PING: &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">await</span> <span class="n">client</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">COMMAND_PING</span><span class="p">,</span> <span class="n">ping_data</span><span class="p">))</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling SLOW_PING: &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">await</span> <span class="n">client</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">COMMAND_SLOW_PING</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling unknown command: &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">await</span> <span class="n">client</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">COMMAND_FIX_CODE</span><span class="p">))</span>
+
+    <span class="c1"># exit</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+
+    <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">default_timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">default_expect_responses</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">loop</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">start</span><span class="p">((</span><span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">REDIS_PORT</span><span class="p">)))</span>
+    <span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">call_commands</span><span class="p">(</span><span class="n">client</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Server example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: see client.py example</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">asyncio</span>
+
+<span class="kn">from</span> <span class="nn">yarpc</span> <span class="kn">import</span> <span class="n">Server</span><span class="p">,</span> <span class="n">Request</span>
+
+<span class="n">REDIS_HOST</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span>
+<span class="n">REDIS_PORT</span> <span class="o">=</span> <span class="mi">6379</span>
+
+<span class="n">COMMAND_PING</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">COMMAND_SLOW_PING</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">server</span> <span class="o">=</span> <span class="n">Server</span><span class="p">(</span><span class="s2">&quot;example&quot;</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;example-{os.getpid()}&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@server.command</span><span class="p">(</span><span class="n">COMMAND_PING</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Responds with provided message argument or &#39;pong&#39;.&quot;&quot;&quot;</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Received PING command&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;pong&quot;</span> <span class="k">if</span> <span class="n">message</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="n">message</span>
+
+
+<span class="nd">@server.command</span><span class="p">(</span><span class="n">COMMAND_SLOW_PING</span><span class="p">)</span>
+<span class="n">async</span> <span class="k">def</span> <span class="nf">slow_ping</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Responds with &#39;pong&#39; after 2 seconds, too slow...&quot;&quot;&quot;</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Received SLOW_PING command&quot;</span><span class="p">)</span>
+
+    <span class="n">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;pong&quot;</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">run</span><span class="p">((</span><span class="n">REDIS_HOST</span><span class="p">,</span> <span class="n">REDIS_PORT</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">all_tasks</span><span class="p">():</span>
+            <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#installing">Installing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#quick-example">Quick example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="yarpc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#module-yarpc.client">yarpc.client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#module-yarpc.server">yarpc.server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#module-yarpc.abc">yarpc.abc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#module-yarpc.request">yarpc.request module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yarpc.html#module-yarpc.response">yarpc.response module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+</ul>
+</div>
+
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yarpc.html">API Documentation</a></li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+                <li class="footer-element">
+                    
+                        <a href="_sources/index.rst.txt" rel="nofollow"> source</a>
+                    
+                </li>
+            
+
+            
+
+            
+                <li class="footer-element">
+                    
+                        04 Oct 2019
+                    
+                </li>
+            
+        </ul>
+        <div id="credit">
+                    &#169; Copyright 2019, Eugene Ershov.
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

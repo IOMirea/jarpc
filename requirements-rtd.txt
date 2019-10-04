@@ -1,0 +1,3 @@
+sphinx==1.8.5 # sphinx 2.0 is incompatible with sphinxcontrib-asyncio
+sphinxcontrib-asyncio==0.2.0
+git+https://github.com/Gelbpunkt/insegel # the custom theme
