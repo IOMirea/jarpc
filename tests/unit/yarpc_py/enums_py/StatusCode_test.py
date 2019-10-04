@@ -8,6 +8,7 @@ all_enumaration_types = [
     StatusCode.INTERNAL_ERROR,
 ]
 
+
 def test_properties_values():
     """
     Should ensure that variables are set to their expected values
@@ -16,6 +17,7 @@ def test_properties_values():
     vals = [0, 1, 2, 3, 4]
     for enum in all_enumaration_types:
         assert enum.value == vals[enum.value]
+
 
 def test_properties_types():
     """
