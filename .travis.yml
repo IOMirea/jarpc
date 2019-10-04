@@ -29,9 +29,7 @@ install:
 
 script:
   - pre-commit run --all-files
-  - pip3 install .
-  - pip3 install aioredis
-  - pip3 install coverage
+  - pip3 install -r requirements.txt
   - pytest --cov --cov-report=xml
   - make test
 
