@@ -55,3 +55,6 @@ tags
 dist/
 build/
 *.egg-info/
+
+# Docs
+_build/
