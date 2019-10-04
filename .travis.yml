@@ -25,12 +25,12 @@ env:
 
 install:
   - pip3 install --upgrade pip
+  - pip3 install coverage
   - pip3 install pre-commit pytest pytest-cov codecov
 
 script:
   - pre-commit run --all-files
   - pip3 install .
-  - pip3 install coverage
   - pytest --cov --cov-report=xml
   - make test
 
