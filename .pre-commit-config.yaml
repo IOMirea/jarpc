@@ -27,7 +27,7 @@ repos:
 
   -   repo: local
       hooks:
-      -   id: tests
-          name: Tests
-          entry: make test
-          language: python3
+      - id: tests
+        name: Tests
+        entry: make test
+        language: python3
