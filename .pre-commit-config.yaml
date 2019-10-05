@@ -24,3 +24,10 @@ repos:
     hooks:
       - id: mypy
         files: ^yarpc/.+$
+
+  -   repo: local
+      hooks:
+      -   id: tests
+          name: Tests
+          entry: make test
+          language: python3
