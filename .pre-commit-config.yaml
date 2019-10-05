@@ -30,6 +30,6 @@ repos:
     hooks:
     - id: pytest
       name: pytest
-      entry: make test
+      entry: pytest tests/unit
       language: python
       files: (^|/)tests/.+\.py$
