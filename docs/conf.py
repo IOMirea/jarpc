@@ -72,6 +72,7 @@ html_static_path = ["_static"]
 
 # use index.rst
 master_doc = "index"
+source_suffix = ".rst"
 html_logo = "logo.png"
 html_favicon = "logo.png"
 
