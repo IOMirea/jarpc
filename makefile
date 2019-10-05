@@ -17,6 +17,9 @@ preInstall:
 	pip install -U pytest
 	pytest --version
 
+.PHONY: lint
+lint:
+
 .PHONY: test
 test: .cleanCoverage
 	pytest $(TEST_DIR)/unit
@@ -35,7 +38,10 @@ openReport: .cleanCoverage
 
 .PHONY: help
 help:
-	@echo 'createVirtualenv - '
-	@echo 'preInstall - '
+	@echo '==================================== HELP  ===================================='
+	@echo 'createVirtualenv - creates a virtualenv'
+	@echo 'preInstall - install all run pre requisites to run tests and coverage report'
 	@echo 'test - run unit tests on all Python files'
 	@echo 'openReport - check code coverage of all Python files'
+	@echo 'lint - run pylint and flake8 on all your Python files'
+	@echo ''
