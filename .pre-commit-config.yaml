@@ -30,6 +30,6 @@ repos:
     hooks:
     - id: pytest
       name: pytest
-      entry: venv/bin/pytest
+      entry: make test
       language: python
       files: (^|/)tests/.+\.py$
