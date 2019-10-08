@@ -1,21 +1,24 @@
 YARPC=yarpc
-TEST_DIR=tests/unit
+TEST_DIR=tests
+PYTHON?=python3
+PIP?=pip
+PYTEST?=pytest
 
 .PHONY: create-env
 create-env:
 	rm -rf env
-	python3 -m pip install --user virtualenv
-	python3 -m venv env
+	$(PYTOHN) -m $(PIP) install --user virtualenv
+	$(PYTOHN) -m venv env
 	source env/bin/activate
 
 .PHONY: install
 install:
-	pip install --upgrade pip
-	pip install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP) install --upgrade $(PIP)
+	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
 
 .PHONY: test
 test: .cleanCoverage
-	pytest $(TEST_DIR)
+	$(PYTEST) $(TEST_DIR)/unit
 
 .cleanCoverage:
 	@echo 'cleaning coverage files ...'
@@ -24,8 +27,8 @@ test: .cleanCoverage
 
 .PHONY: open-report
 open-report: .cleanCoverage
-	pytest --cov=$(YARPC) --cov-report=term-missing --cov-report=html
-	open -a "Google Chrome" htmlcov/index.html
+	$(PYTEST) --cov=$(YARPC) --cov-report=term-missing --cov-report=html
+	open htmlcov/index.html
 
 .PHONY: help
 help:
