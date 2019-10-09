@@ -7,8 +7,8 @@ PYTEST?=pytest
 .PHONY: create-env
 create-env:
 	rm -rf env
-	$(PYTOHN) -m $(PIP) install --user virtualenv
-	$(PYTOHN) -m venv env
+	$(PYTHON) -m $(PIP) install --user virtualenv
+	$(PYTHON) -m venv env
 	source env/bin/activate
 
 .PHONY: install

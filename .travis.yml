@@ -12,7 +12,7 @@ matrix:
       before_install:
         - choco install python
         - python -m pip install --upgrade pip
-        - choco install make.
+        - choco install make
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 
 cache:
