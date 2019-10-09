@@ -6,6 +6,7 @@ yarpc - Yet another python RPC library based on redis pubsub. It is built with [
 
 <img src="https://raw.githubusercontent.com/IOMirea/yarpc/master/docs/logo.png" height="100">
 
+[![Documentation Status](https://readthedocs.org/projects/yarpc/badge/?version=latest)](https://yarpc.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/IOMirea/yarpc.svg?branch=master)](https://travis-ci.org/IOMirea/yarpc)
 [![codecov](https://codecov.io/gh/IOMirea/yarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/yarpc)
 
