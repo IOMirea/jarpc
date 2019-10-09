@@ -30,6 +30,13 @@ open-report: .cleanCoverage
 	$(PYTEST) --cov=$(YARPC) --cov-report=term-missing --cov-report=html
 	open htmlcov/index.html
 
+.PHONY: ci-test
+ci-test:
+	$(PIP) install -r tests/utils/requirements.txt
+	pre-commit run --all-files
+	$(PIP) install .
+	$(PYTEST) --cov --cov-report=xml
+
 .PHONY: help
 help:
 	@echo '==================================== HELP  ===================================='
