@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 from yarpc import Client
 
@@ -9,8 +8,6 @@ REDIS_PORT = 6379
 COMMAND_PING = 0
 COMMAND_SLOW_PING = 1
 COMMAND_FIX_CODE = 999
-
-logging.basicConfig(level=logging.DEBUG)
 
 
 async def call_commands(client: Client) -> None:
