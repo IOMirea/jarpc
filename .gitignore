@@ -40,6 +40,9 @@ venv.bak/
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
+#IDEs
+.vscode
+
 # Session
 Session.vim
 
