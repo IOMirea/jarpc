@@ -31,10 +31,10 @@ Setup a quick Redis instance via `Docker <https://docker.com/>`__: ::
 
 Client example
 
-.. literalinclude:: ../examples/client.py
+.. literalinclude:: ../examples/basic/client.py
    :language: python
 
 Server example
 
-.. literalinclude:: ../examples/server.py
+.. literalinclude:: ../examples/basic/server.py
     :language: python

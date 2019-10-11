@@ -19,7 +19,8 @@ from .client import Client
 from .server import Server
 from .request import Request
 from .response import Response
+from .clientserver import ClientServer
 
 __version__ = "0.3.0a"
 __author__ = "Eugene Ershov"
-__all__ = ("StatusCode", "Client", "Server", "Request", "Response")
+__all__ = ("StatusCode", "Client", "Server", "Request", "Response", "ClientServer")

@@ -1,7 +1,6 @@
-# NOTE: see client.py example
-
 import os
 import asyncio
+import logging
 
 from yarpc import Server, Request
 
@@ -12,6 +11,7 @@ COMMAND_PING = 0
 COMMAND_SLOW_PING = 1
 
 server = Server("example", node=f"example-{os.getpid()}")
+logging.basicConfig(level=logging.DEBUG)
 
 
 @server.command(COMMAND_PING)

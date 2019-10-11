@@ -23,3 +23,9 @@ class StatusCode(Enum):
     UNKNOWN_COMMAND = 2
     BAD_PARAMS = 3
     INTERNAL_ERROR = 4
+
+
+class PayloadType(Enum):
+    UNKNOWN_TYPE = 0
+    REQUEST = 1
+    RESPONSE = 2

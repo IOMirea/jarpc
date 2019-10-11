@@ -65,4 +65,4 @@ class Request:
             await self.server.reply(address=self._address, data=data, status=status)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} command_index={self.command_index} data={self._data}>"
+        return f"<{self.__class__.__name__} command_index={self.command_index}>"

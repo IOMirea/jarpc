@@ -15,76 +15,30 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import uuid
-import asyncio
 import logging
 
-from typing import Any, Dict, Tuple, Union, Callable, Optional
-
-import aioredis
+from typing import Any, Dict, Callable, Optional
 
 from .abc import ABCServer
 from .enums import StatusCode
+from .typing import _CommandType
 from .request import Request
 from .constants import NoValue
-
-_Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
-_Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
-_CommandType = Any
-
-# TODO: annotate _CommandType properly.
-# Possible solutions (do not work for different reasons)
-#
-# typing_extensions.Protocol
-# class _CommandType(Protocol):
-#     def __call__(self, __request: Request, **kwargs: Any) -> Any:
-#         ...
-#
-# mypy_extensions.KwArg
-# _CommandType = Callable[["Server", KwArg(Any)], Awaitable[Any]]
-#
-# typing.TypeVar ?
+from .connection import Connection
 
 log = logging.getLogger(__name__)
 
 
-class Server(ABCServer):
+class Server(Connection, ABCServer):
     """RPC server listens for commands from clients and sends responses."""
 
-    __slots__ = ("_call_address", "_resp_address", "_loop", "_node", "_commands")
+    # # Using __slots__ causes issues with ClintServer
+    # __slots__ = ("_node", "_commands")
 
-    def __init__(
-        self,
-        channel_name: str,
-        loads: Optional[_Deserializer] = None,
-        dumps: Optional[_Serializer] = None,
-        loop: Optional[asyncio.AbstractEventLoop] = None,
-        node: Optional[str] = None,
-    ):
+    def __init__(self, *args: Any, node: Optional[str] = None, **kwargs: Any):
+        super().__init__(*args, **kwargs)
 
-        self._call_address = f"rpc:{channel_name}"
-        self._resp_address = f"{self._call_address}-response"
-
-        if loop is None:
-            self._loop = asyncio.get_event_loop()
-        else:
-            self._loop = loop
-
-        if loads and dumps:
-            self._loads = loads
-            self._dumps = dumps
-        elif loads is None and dumps is None:
-            import marshal
-
-            self._loads = marshal.loads
-            self._dumps = marshal.dumps
-        else:
-            raise ValueError("You cannot define only one of dumps and loads.")
-
-        if node is None:
-            self._node = uuid.uuid4().hex
-        else:
-            self._node = node
-
+        self._node = uuid.uuid4().hex if node is None else node
         self._commands: Dict[int, _CommandType] = {}
 
     def command(self, index: int) -> Callable[[_CommandType], None]:
@@ -95,7 +49,7 @@ class Server(ABCServer):
 
     def register_command(self, index: int, fn: _CommandType) -> int:
         if index in self._commands:
-            raise ValueError(f"Command with index {index} already registered")
+            raise ValueError("Command with index %d already registered", index)
 
         self._commands[index] = fn
 
@@ -103,85 +57,60 @@ class Server(ABCServer):
 
     def remove_command(self, index: int) -> _CommandType:
         if index not in self._commands:
-            raise ValueError(f"Command with index {index} is not registered")
+            raise ValueError("Command with index %d is not registered", index)
 
         return self._commands.pop(index)
 
-    async def start(
-        self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
-    ) -> None:
+    async def start(self, *args: Any, **kwargs: Any) -> None:
         """Starts command processing."""
 
-        self._call_conn = await aioredis.create_redis(
-            redis_address, loop=self._loop, **kwargs
-        )
-        self._resp_conn = await aioredis.create_redis(
-            redis_address, loop=self._loop, **kwargs
-        )
+        log.info("running on node %s", self.node)
 
-        channels = await self._call_conn.subscribe(self._call_address)
+        await super().start(*args, **kwargs)
 
-        log.info(f"running on node {self.node}")
-        log.info(f"listening: {self._call_address}")
-        log.info(f"responding: {self._resp_address}")
+    def _make_request(self, data: Any) -> Optional[Request]:
+        return Request.from_data(self, data)
 
-        await self._handler(channels[0])
+    async def _handle_request(self, request: Request) -> None:
+        log.info("received command %d", request.command_index)
 
-    def run(self, *args: Any, **kwargs: Any) -> None:
-        """A blocking way to start server. Takes same arguments as Client.start."""
+        fn = self._commands.get(request.command_index)
+        if fn is None:
+            log.warning("unknown command %d", request.command_index)
 
-        self._loop.run_until_complete(self.start(*args, **kwargs))
+            await request._reply_with_status(status=StatusCode.UNKNOWN_COMMAND)
 
-    async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
-        async for msg in channel.iter():
-            try:
-                request = Request.from_data(self, self._loads(msg))
-            except Exception as e:
-                log.error(f"error parsing request: {e.__class__.__name__}: {e}")
+            return
 
-                # address is unavailable
-                # await self._respond(request.address, StatusCode.BAD_FORMAT)
-                continue
+        try:
+            command = fn(request, **request._data)
+        except TypeError as e:
+            log.error("bad arguments given to %d: %s", request.command_index, str(e))
 
-            log.info(f"received command {request.command_index}")
+            await request._reply_with_status(str(e), StatusCode.BAD_PARAMS)
 
-            fn = self._commands.get(request.command_index)
-            if fn is None:
-                log.warning(f"unknown command {request.command_index}")
+            return
 
-                await request._reply_with_status(status=StatusCode.UNKNOWN_COMMAND)
+        try:
+            command_result = await command
+        except Exception as e:
+            log.error(
+                "error calling command %d %s: %s",
+                request.command_index,
+                e.__class__.__name__,
+                str(e),
+            )
 
-                continue
+            await request._reply_with_status(str(e), StatusCode.INTERNAL_ERROR)
 
-            try:
-                command = fn(request, **request._data)
-            except TypeError as e:
-                log.error(f"bad arguments given to {request.command_index}: {e}")
+            return
 
-                await request._reply_with_status(str(e), StatusCode.BAD_PARAMS)
+        if command_result is None:
+            # Special case, should be documented.
+            # returning None is allowed using request.reply
+            return
 
-                continue
-
-            try:
-                command_result = await command
-            except Exception as e:
-                log.error(
-                    f"error calling command {request.command_index}: {e.__class__.__name__}: {e}"
-                )
-
-                await request._reply_with_status(str(e), StatusCode.INTERNAL_ERROR)
-
-                continue
-
-            if command_result is None:
-                # Special case, should be documented.
-                # returning None is allowed using request.reply
-                continue
-
-            await request.reply(command_result)
-
-    async def _send(self, payload: Union[bytes, str]) -> None:
-        await self._resp_conn.publish(self._resp_address, payload)
+        await request.reply(command_result)
 
     async def reply(
         self, *, address: Optional[str], status: StatusCode, data: Any
@@ -195,19 +124,11 @@ class Server(ABCServer):
         if data is not NoValue:
             payload["d"] = data
 
-        await self._send(self._dumps(payload))
-
-    def close(self) -> None:
-        """Closes connections stopping server."""
-
-        log.info("closing connections")
-
-        self._call_conn.close()
-        self._resp_conn.close()
+        await self._send_response(self._dumps(payload))
 
     @property
     def node(self) -> str:
         return self._node
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} call_address={self._call_address} resp_address={self._resp_address} node={self.node}>"
+        return f"<{self.__class__.__name__} name={self._name} node={self.node}>"
