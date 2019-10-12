@@ -17,9 +17,10 @@
 from .enums import StatusCode
 from .client import Client
 from .server import Server
+from .slient import Slient
 from .request import Request
 from .response import Response
 
 __version__ = "0.3.0a"
 __author__ = "Eugene Ershov"
-__all__ = ("StatusCode", "Client", "Server", "Request", "Response")
+__all__ = ("StatusCode", "Client", "Server", "Slient", "Request", "Response")

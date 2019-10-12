@@ -1,5 +1,3 @@
-# NOTE: see client.py example
-
 import os
 import asyncio
 

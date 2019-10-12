@@ -21,6 +21,7 @@ import abc
 from typing import Any, Dict, List, Optional, Generator
 
 from .enums import StatusCode
+from .typing import CommandType
 from .response import Response
 
 __all__ = ("ResponsesIterator", "ABCClient", "ABCServer")
@@ -47,25 +48,9 @@ class ResponsesIterator(abc.ABC):
         ...
 
 
-class RPCTransport(abc.ABC):
-    @abc.abstractmethod
-    def close(self) -> None:
-        ...
+class ABCClient(abc.ABC):
+    """Calls commands."""
 
-
-class ABCServer(RPCTransport):
-    @abc.abstractproperty
-    def node(self) -> str:
-        ...
-
-    @abc.abstractmethod
-    async def reply(
-        self, *, address: Optional[str], status: StatusCode, data: Any
-    ) -> None:
-        ...
-
-
-class ABCClient(RPCTransport):
     @abc.abstractmethod
     def call(
         self,
@@ -74,4 +59,26 @@ class ABCClient(RPCTransport):
         timeout: Optional[float] = None,
         expect_responses: int = 0,
     ) -> ResponsesIterator:
-        ...
+        """Calls command by index."""
+
+
+class ABCServer(abc.ABC):
+    """Responds to commands."""
+
+    @abc.abstractproperty
+    def node(self) -> str:
+        """Node address."""
+
+    @abc.abstractmethod
+    def register_command(self, index: int, fn: CommandType) -> int:
+        """Registers new command."""
+
+    @abc.abstractmethod
+    def remove_command(self, index: int) -> CommandType:
+        """Removes existing command."""
+
+    @abc.abstractmethod
+    async def reply(
+        self, *, address: Optional[str], status: StatusCode, data: Any
+    ) -> None:
+        """Sends response to address."""

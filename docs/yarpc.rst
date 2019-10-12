@@ -20,6 +20,14 @@ yarpc.server module
     :undoc-members:
     :show-inheritance:
 
+yarpc.slient module
+-------------------
+
+.. automodule:: yarpc.slient
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 yarpc.abc module
 ----------------
 

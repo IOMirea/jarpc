@@ -1,5 +1,3 @@
-# NOTE: server should be started first, check server.py example
-
 import asyncio
 
 from yarpc import Client
