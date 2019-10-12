@@ -1,4 +1,5 @@
 YARPC=yarpc
+SOURCES=$(YARPC) examples
 TEST_DIR=tests
 PYTHON?=python3
 PIP?=pip
@@ -14,7 +15,7 @@ create-env:
 .PHONY: install
 install:
 	$(PIP) install --upgrade pip
-	$(PIP) install .
+# 	$(PYTHON) setup.py check -rms
 	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
 	$(PIP) install pre-commit pytest pytest-cov codecov
 
@@ -37,26 +38,30 @@ ci-test: lint
 
 .PHONY: flake8
 flake8:
-	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec flake8 "{}" +
+	flake8 $(SOURCES)
 
 .PHONY: black
 black:
-	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec black "{}" +
+	black $(SOURCES) --check
 
 .PHONY: mypy
 mypy:
-	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec mypy --ignore-missing-imports "{}" +
+	mypy $(SOURCES)
+
+.PHONY: isort
+isort:
+	isort $(SOURCES) -rc --check-only
 
 .PHONY: lint
-lint: flake8 black mypy
+lint: flake8 black mypy isort
 	@echo 'Linting with flake8, black & mypy'
 
 .PHONY: help
 help:
-	@echo '==================================== HELP  ===================================='
+	@echo 'HELP...................................................................'
 	@echo 'create-env - creates a virtualenv'
-	@echo 'install - install all run pre requisites to run tests and coverage report'
-	@echo 'test - run unit tests on all Python files'
-	@echo 'open-report - check code coverage of all Python files'
-	@echo 'lint - run pylint and flake8 on all your Python files'
+	@echo 'install - installs all pre-requisites to run tests and coverage report'
+	@echo 'test - runs unit tests on all Python files'
+	@echo 'open-report - checks code coverage of all Python files'
+	@echo 'lint - runs flake8, black, mypy, & isort Python files '
 	@echo ''
