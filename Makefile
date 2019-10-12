@@ -15,6 +15,7 @@ create-env:
 .PHONY: install
 install:
 	$(PIP) install --upgrade pip
+	$(PIP) install .
 # 	$(PYTHON) setup.py check -rms
 	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
 	$(PIP) install pre-commit pytest pytest-cov codecov
