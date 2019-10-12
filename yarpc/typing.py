@@ -16,13 +16,15 @@
 
 from typing import Any, Union, Callable
 
+__all__ = ("Serializer", "Deserializer", "CommandType")
+
 # These types are only useful for library users.
 # Variable having these types will produce typing errors upon use in internal code.
 # These errors should be explicitly suppressed.
-_Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
-_Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
+Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
+Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
 
-_CommandType = Any
+CommandType = Any
 
 # TODO: annotate _CommandType properly.
 # Possible solutions (do not work for different reasons)

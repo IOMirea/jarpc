@@ -21,7 +21,7 @@ from typing import Any, Dict, Callable, Optional
 
 from .abc import ABCServer
 from .enums import StatusCode
-from .typing import _CommandType
+from .typing import CommandType
 from .request import Request
 from .constants import NoValue
 from .connection import Connection
@@ -32,22 +32,22 @@ log = logging.getLogger(__name__)
 class Server(Connection, ABCServer):
     """RPC server listens for commands from clients and sends responses."""
 
-    # # Using __slots__ causes issues with ClintServer
+    # Using __slots__ causes issues with Slient
     # __slots__ = ("_node", "_commands")
 
     def __init__(self, *args: Any, node: Optional[str] = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self._node = uuid.uuid4().hex if node is None else node
-        self._commands: Dict[int, _CommandType] = {}
+        self._commands: Dict[int, CommandType] = {}
 
-    def command(self, index: int) -> Callable[[_CommandType], None]:
-        def inner(func: _CommandType) -> None:
+    def command(self, index: int) -> Callable[[CommandType], None]:
+        def inner(func: CommandType) -> None:
             self.register_command(index, func)
 
         return inner
 
-    def register_command(self, index: int, fn: _CommandType) -> int:
+    def register_command(self, index: int, fn: CommandType) -> int:
         if index in self._commands:
             raise ValueError("Command with index %d already registered", index)
 
@@ -55,7 +55,7 @@ class Server(Connection, ABCServer):
 
         return index
 
-    def remove_command(self, index: int) -> _CommandType:
+    def remove_command(self, index: int) -> CommandType:
         if index not in self._commands:
             raise ValueError("Command with index %d is not registered", index)
 
@@ -107,7 +107,7 @@ class Server(Connection, ABCServer):
 
         if command_result is None:
             # Special case, should be documented.
-            # returning None is allowed using request.reply
+            # Returning None is allowed using request.reply
             return
 
         await request.reply(command_result)

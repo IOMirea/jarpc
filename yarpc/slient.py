@@ -3,8 +3,8 @@ from .server import Server
 from .request import Request
 
 
-class ClientServer(Client, Server):
-    """RPC client combines functionality of Client and Server."""
+class Slient(Client, Server):
+    """Slient combines functionality of Client and Server."""
 
     async def _handle_request(self, request: Request) -> None:
         if request._address in self._listeners:

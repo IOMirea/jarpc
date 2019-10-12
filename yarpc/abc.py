@@ -21,7 +21,7 @@ import abc
 from typing import Any, Dict, List, Callable, Optional, Generator
 
 from .enums import StatusCode
-from .typing import _CommandType
+from .typing import CommandType
 from .response import Response
 
 __all__ = ("ResponsesIterator", "ABCClient", "ABCServer")
@@ -66,15 +66,15 @@ class ABCServer(abc.ABC):
         """Node address."""
 
     @abc.abstractmethod
-    def command(self, index: int) -> Callable[[_CommandType], None]:
+    def command(self, index: int) -> Callable[[CommandType], None]:
         ...
 
     @abc.abstractmethod
-    def register_command(self, index: int, fn: _CommandType) -> int:
+    def register_command(self, index: int, fn: CommandType) -> int:
         ...
 
     @abc.abstractmethod
-    def remove_command(self, index: int) -> _CommandType:
+    def remove_command(self, index: int) -> CommandType:
         ...
 
     @abc.abstractmethod

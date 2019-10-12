@@ -14,12 +14,12 @@ yarpc - Yet another python RPC library based on redis pubsub. It is built with [
 Library can be installed from repository: `pip install git+https://github.com/IOMirea/yarpc.git#egg=yarpc` (PyPI release soon)
 
 ### Running
-There are 3 run modes: `Client`, `Server` and `ClientServer`.
+There are 3 run modes: `Client`, `Server` and `Slient`.
 
-|                    | Client | Server |  ClientServer   |
-| :----------------- | :----: | :----: | :-------------: |
-| Sending command    |    ✔️   |        | not implemented |
-| Receiving commands |        |    ✔️   | not implemented |
+|                    | Client | Server | Slient |
+| :----------------- | :----: | :----: | :----: |
+| Sending command    |    ✔️   |        |    ✔️   |
+| Receiving commands |        |    ✔️   |    ✔️   |
 
 ##### Client
 Sends commands to servers and waits for responses.
@@ -27,7 +27,7 @@ Sends commands to servers and waits for responses.
 ##### Server
 Waits for commands from clients, responds to them.
 
-##### ClientServer
+##### Slient
 Combines both client and server. It can send commands to servers as well as respond to clients.
 
 Examples of running in each mode can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).

@@ -129,7 +129,7 @@ class EmptyResponses(ResponsesIterator):
 class Client(Connection, ABCClient):
     """RPC client sends commands to servers and listens for responses."""
 
-    # Using __slots__ causes issues with ClintServer
+    # Using __slots__ causes issues with Slient
     # __slots__ = ("_default_timeout", "_default_expect_responses", "_listeners")
 
     def __init__(
@@ -203,6 +203,3 @@ class Client(Connection, ABCClient):
                 timeout,
                 expect_responses or self._default_expect_responses,
             )
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} name={self._name}>"

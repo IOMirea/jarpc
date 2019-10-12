@@ -23,7 +23,7 @@ from typing import Any, Tuple, Union, Optional
 import aioredis
 
 from .enums import PayloadType
-from .typing import _Serializer, _Deserializer
+from .typing import Serializer, Deserializer
 from .request import Request
 from .response import Response
 
@@ -56,8 +56,8 @@ class Connection:
     def __init__(
         self,
         name: str,
-        loads: Optional[_Deserializer] = None,
-        dumps: Optional[_Serializer] = None,
+        loads: Optional[Deserializer] = None,
+        dumps: Optional[Serializer] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
     ):
@@ -79,7 +79,7 @@ class Connection:
     async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
-        """Starts client."""
+        """Starts connection."""
 
         self._sub = await aioredis.create_redis(
             redis_address, loop=self._loop, **kwargs
@@ -97,25 +97,29 @@ class Connection:
         await self._handler(channels[0])
 
     def run(self, *args: Any, **kwargs: Any) -> None:
-        """A blocking way to start connection. Takes same arguments as Connection.start."""
+        """
+        A blocking way to start connection. Takes same arguments as Connection.start.
+        """
 
         self._loop.run_until_complete(self.start(*args, **kwargs))
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
+            # TODO: parser
+            pl_type = _payload_value_to_type.get(msg[0:1], PayloadType.UNKNOWN_TYPE)
+            if pl_type == PayloadType.UNKNOWN_TYPE:
+                log.warn("Unknown payload type: %d", pl_type.value)
+                continue
+
             try:
-                # TODO: parser
-                pl_type = _payload_value_to_type.get(msg[0:1], PayloadType.UNKNOWN_TYPE)
-                if pl_type == PayloadType.UNKNOWN_TYPE:
-                    log.error("Unknown payload type: %d", pl_type.value)
-                    continue
-
                 data = self._loads(msg[1:])
-            except Exception as e:
-                log.error(f"error parsing request: {e.__class__.__name__}: {e}")
-
+            except Exception:
                 # address is unavailable
                 # await self._respond(request.address, StatusCode.BAD_FORMAT)
+
+                log.exception(
+                    "could not deserialize payload. Make sure to use same algorithm on both ends"
+                )
                 continue
 
             if pl_type == PayloadType.REQUEST:
@@ -164,4 +168,4 @@ class Connection:
         self._pub.close()
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}>"
+        return f"<{self.__class__.__name__} name={self._name}>"
