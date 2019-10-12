@@ -24,7 +24,7 @@ from .enums import StatusCode
 from .typing import CommandType
 from .response import Response
 
-__all__ = ("ResponsesIterator", "ABCClient", "ABCServer")
+__all__ = ("ResponsesIterator", "ABCConnection", "ABCClient", "ABCServer")
 
 
 class ResponsesIterator(abc.ABC):
@@ -37,7 +37,7 @@ class ResponsesIterator(abc.ABC):
 
     @abc.abstractmethod
     def __await__(self) -> Generator[Any, None, List[Response]]:
-        ...
+        """Returns all responses once they are ready."""
 
     @abc.abstractmethod
     def __aiter__(self) -> ResponsesIterator:
@@ -48,12 +48,18 @@ class ResponsesIterator(abc.ABC):
         ...
 
 
-class ABCClient(abc.ABC):
-    """Calls commands."""
+class ABCConnection(abc.ABC):
+    @abc.abstractproperty
+    def name(self) -> str:
+        """Connection name."""
 
     @abc.abstractproperty
     def node(self) -> str:
-        """Node address."""
+        """Node identifier."""
+
+
+class ABCClient(ABCConnection):
+    """Calls commands."""
 
     @abc.abstractmethod
     def call(
@@ -66,12 +72,8 @@ class ABCClient(abc.ABC):
         """Calls command by index."""
 
 
-class ABCServer(abc.ABC):
+class ABCServer(ABCConnection):
     """Responds to commands."""
-
-    @abc.abstractproperty
-    def node(self) -> str:
-        """Node address."""
 
     @abc.abstractmethod
     def register_command(self, index: int, fn: CommandType) -> int:

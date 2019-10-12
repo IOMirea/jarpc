@@ -23,6 +23,7 @@ from typing import Any, Tuple, Union, Optional
 
 import aioredis
 
+from .abc import ABCConnection
 from .enums import MessageType
 from .typing import Serializer, Deserializer
 from .request import Request
@@ -41,18 +42,9 @@ _payload_value_to_type = {
 _payload_type_to_value = {MessageType.REQUEST: b"0", MessageType.RESPONSE: b"1"}
 
 
-class Connection:
+class Connection(ABCConnection):
 
-    __slots__ = (
-        "_name",
-        "_sub_address",
-        "_pub_address",
-        "_loop",
-        "_loads",
-        "_dumps",
-        "_sub",
-        "_pub",
-    )
+    __slots__ = ("_name", "_node" "_loop", "_ready", "_loads", "_dumps", "_sub", "_pub")
 
     def __init__(
         self,
@@ -195,10 +187,16 @@ class Connection:
         self._pub.close()
 
     @property
+    def name(self) -> str:
+        """Connection name."""
+
+        return self._name
+
+    @property
     def node(self) -> str:
         """Node identifier."""
 
         return self._node
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} name={self._name}>"
+        return f"<{self.__class__.__name__} name={self.name} node={self.node}>"

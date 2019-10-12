@@ -69,6 +69,8 @@ class ResponsesWithTimeout(ResponsesIterator):
         self._start_time = time.time()
 
     def __await__(self) -> Generator[Any, None, List[Response]]:
+        """Returns all responses once they are ready."""
+
         async def coro() -> List[Response]:
             return [resp async for resp in self]
 
@@ -115,9 +117,11 @@ class ResponsesWithTimeout(ResponsesIterator):
 
 
 class EmptyResponses(ResponsesIterator):
-    """Looks and behaves the same way as ResponsesWithTimeout, but is empty."""
+    """Behaves the same way as ResponsesWithTimeout, except it is empty."""
 
     def __await__(self) -> Generator[Any, None, List[Response]]:
+        """Returns empty list of responses."""
+
         async def coro() -> List[Response]:
             return []
 

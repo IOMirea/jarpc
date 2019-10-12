@@ -124,6 +124,3 @@ class Server(Connection, ABCServer):
             payload["d"] = data
 
         await self._send_response(self._dumps(payload))
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} name={self._name} node={self.node}>"
