@@ -30,9 +30,9 @@ class Request:
     __slots__ = (
         "server",
         "command_index",
-        "_client_identifier",
-        "_address",
+        "node",
         "_data",
+        "_address",
         "_reply_called",
     )
 
@@ -40,17 +40,17 @@ class Request:
         self,
         server: ABCServer,
         command_index: int,
-        client_identifier: str,
-        address: Optional[str],
+        node: str,
         data: Any,
+        address: Optional[str],
     ):
         self.server = server
 
         self.command_index = command_index
+        self.node = node
 
-        self._client_identifier = client_identifier
-        self._address = address
         self._data = data
+        self._address = address
 
         self._reply_called = False
 
@@ -59,9 +59,9 @@ class Request:
         return cls(
             server=server,
             command_index=payload["c"],
-            client_identifier=payload["i"],
-            address=payload.get("a"),
+            node=payload["n"],
             data=payload.get("d", {}),
+            address=payload.get("a"),
         )
 
     async def reply(self, data: Any) -> None:

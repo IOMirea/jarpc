@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import uuid
 import asyncio
 import logging
 
@@ -62,6 +63,7 @@ class Connection:
         node: Optional[str] = None,
     ):
         self._name = f"rpc:{name}"
+        self._node = uuid.uuid4().hex if node is None else node
 
         self._loop = asyncio.get_event_loop() if loop is None else loop
         self._ready = asyncio.Event(loop=self._loop)
@@ -191,6 +193,12 @@ class Connection:
 
         self._sub.close()
         self._pub.close()
+
+    @property
+    def node(self) -> str:
+        """Node identifier."""
+
+        return self._node
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name={self._name}>"

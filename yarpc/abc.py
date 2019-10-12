@@ -51,6 +51,10 @@ class ResponsesIterator(abc.ABC):
 class ABCClient(abc.ABC):
     """Calls commands."""
 
+    @abc.abstractproperty
+    def node(self) -> str:
+        """Node address."""
+
     @abc.abstractmethod
     def call(
         self,

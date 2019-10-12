@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import uuid
 import logging
 
 from typing import Any, Dict, Callable, Optional
@@ -35,10 +34,9 @@ class Server(Connection, ABCServer):
     # NOTE: defining different __slots__ in Client and Server causes error creating
     # Slient
 
-    def __init__(self, *args: Any, node: Optional[str] = None, **kwargs: Any):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
-        self._node = uuid.uuid4().hex if node is None else node
         self._commands: Dict[int, CommandType] = {}
 
     def command(self, index: int) -> Callable[[CommandType], None]:
@@ -126,12 +124,6 @@ class Server(Connection, ABCServer):
             payload["d"] = data
 
         await self._send_response(self._dumps(payload))
-
-    @property
-    def node(self) -> str:
-        """Node address."""
-
-        return self._node
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} name={self._name} node={self.node}>"
