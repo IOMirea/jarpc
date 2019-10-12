@@ -1,22 +1,22 @@
 YARPC=yarpc
 TEST_DIR=tests
 PYTHON?=python3
-PIP3?=pip3
+PIP?=pip
 PYTEST?=pytest
 
 .PHONY: create-env
 create-env:
 	rm -rf env
-	$(PYTHON) -m $(PIP3) install --user virtualenv
+	$(PYTHON) -m $(PIP) install --user virtualenv
 	$(PYTHON) -m venv env
 	source env/bin/activate
 
 .PHONY: install
 install:
-	$(PIP3) install --upgrade pip
-	$(PIP3) install .
-	$(PIP3) install -r $(TEST_DIR)/utils/requirements.txt
-	$(PIP3) install pre-commit pytest pytest-cov codecov
+	$(PIP) install --upgrade pip
+	$(PIP) install .
+	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP) install pre-commit pytest pytest-cov codecov
 
 .PHONY: test
 test: .cleanCoverage
@@ -35,14 +35,24 @@ open-report: .cleanCoverage
 ci-test: lint
 	$(PYTEST) --cov --cov-report=xml -v
 
-.PHONY: lint
-lint:
+.PHONY: flake8
+flake8:
 	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec flake8 "{}" +
-	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec black "{}" +
-	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec mypy --ignore-missing-imports "{}" +
 	@echo 'flake8....................................................................Passed'
+
+.PHONY: black
+black:
+	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec black "{}" +
 	@echo 'black.....................................................................Passed'
+
+.PHONY: mypy
+mypy:
+	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec mypy --ignore-missing-imports "{}" +
 	@echo 'mypy......................................................................Passed'
+
+.PHONY: lint
+lint: flake8 black mypy
+	@echo 'Linting with flake8, black & mypy'
 
 .PHONY: help
 help:
