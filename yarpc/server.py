@@ -30,10 +30,10 @@ log = logging.getLogger(__name__)
 
 
 class Server(Connection, ABCServer):
-    """RPC server listens for commands from clients and sends responses."""
+    """Listens for commands from clients and sends responses."""
 
-    # Using __slots__ causes issues with Slient
-    # __slots__ = ("_node", "_commands")
+    # NOTE: defining different __slots__ in Client and Server causes error creating
+    # Slient
 
     def __init__(self, *args: Any, node: Optional[str] = None, **kwargs: Any):
         super().__init__(*args, **kwargs)
@@ -42,12 +42,16 @@ class Server(Connection, ABCServer):
         self._commands: Dict[int, CommandType] = {}
 
     def command(self, index: int) -> Callable[[CommandType], None]:
+        """Flask-style decorator used to register commands. Calls register_command."""
+
         def inner(func: CommandType) -> None:
             self.register_command(index, func)
 
         return inner
 
     def register_command(self, index: int, fn: CommandType) -> int:
+        """Registers new command. Raises ValueError if index already used."""
+
         if index in self._commands:
             raise ValueError("Command with index %d already registered", index)
 
@@ -56,17 +60,12 @@ class Server(Connection, ABCServer):
         return index
 
     def remove_command(self, index: int) -> CommandType:
+        """Removes existing command. Raises ValueError if index not found."""
+
         if index not in self._commands:
             raise ValueError("Command with index %d is not registered", index)
 
         return self._commands.pop(index)
-
-    async def start(self, *args: Any, **kwargs: Any) -> None:
-        """Starts command processing."""
-
-        log.info("running on node %s", self.node)
-
-        await super().start(*args, **kwargs)
 
     def _make_request(self, data: Any) -> Optional[Request]:
         return Request.from_data(self, data)
@@ -115,6 +114,8 @@ class Server(Connection, ABCServer):
     async def reply(
         self, *, address: Optional[str], status: StatusCode, data: Any
     ) -> None:
+        """Sends response to address (if address is present)."""
+
         if address is None:
             log.debug("no address, unable to respond")
             return
@@ -128,6 +129,8 @@ class Server(Connection, ABCServer):
 
     @property
     def node(self) -> str:
+        """Node address."""
+
         return self._node
 
     def __repr__(self) -> str:

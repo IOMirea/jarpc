@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import abc
 
-from typing import Any, Dict, List, Callable, Optional, Generator
+from typing import Any, Dict, List, Optional, Generator
 
 from .enums import StatusCode
 from .typing import CommandType
@@ -49,6 +49,8 @@ class ResponsesIterator(abc.ABC):
 
 
 class ABCClient(abc.ABC):
+    """Calls commands."""
+
     @abc.abstractmethod
     def call(
         self,
@@ -61,24 +63,22 @@ class ABCClient(abc.ABC):
 
 
 class ABCServer(abc.ABC):
+    """Responds to commands."""
+
     @abc.abstractproperty
     def node(self) -> str:
         """Node address."""
 
     @abc.abstractmethod
-    def command(self, index: int) -> Callable[[CommandType], None]:
-        ...
-
-    @abc.abstractmethod
     def register_command(self, index: int, fn: CommandType) -> int:
-        ...
+        """Registers new command."""
 
     @abc.abstractmethod
     def remove_command(self, index: int) -> CommandType:
-        ...
+        """Removes existing command."""
 
     @abc.abstractmethod
     async def reply(
         self, *, address: Optional[str], status: StatusCode, data: Any
     ) -> None:
-        """Sends response to address (if address is present)."""
+        """Sends response to address."""

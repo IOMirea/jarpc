@@ -79,7 +79,7 @@ class Connection:
     async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
-        """Starts connection."""
+        """Starts processing messages."""
 
         self._sub = await aioredis.create_redis(
             redis_address, loop=self._loop, **kwargs
@@ -88,17 +88,17 @@ class Connection:
             redis_address, loop=self._loop, **kwargs
         )
 
-        channels = await self._sub.subscribe(self._name)
-        assert len(channels) == 1
+        await self._sub.subscribe(self._name)
 
         log.info(f"sub: connected: {self._name}")
         log.info(f"pub: connected: {self._name}")
 
-        await self._handler(channels[0])
+        await self._handler(self._name)
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """
-        A blocking way to start connection. Takes same arguments as Connection.start.
+        A blocking way to launch message processing.
+        Takes same arguments as Connection.start.
         """
 
         self._loop.run_until_complete(self.start(*args, **kwargs))
@@ -133,24 +133,38 @@ class Connection:
                     await self._handle_response(response)
 
     def _make_request(self, data: Any) -> Optional[Request]:
+        """Called for creating request from data. Overridable."""
+
         return None
 
     def _make_response(self, data: Any) -> Optional[Response]:
+        """Called for creating response from data. Overridable."""
+
         return None
 
     async def _handle_request(self, request: Request) -> None:
+        """Called for handling request. Overridable."""
+
         pass
 
     async def _handle_response(self, response: Response) -> None:
+        """Called for handling response. Overridable."""
+
         pass
 
     async def _send_request(self, payload: Union[bytes, str]) -> None:
+        """Sends payload of request type."""
+
         await self._send(payload, _payload_type_to_value[PayloadType.REQUEST])
 
     async def _send_response(self, payload: Union[bytes, str]) -> None:
+        """Sends payload of response type."""
+
         await self._send(payload, _payload_type_to_value[PayloadType.RESPONSE])
 
     async def _send(self, payload: Union[bytes, str], pl_type: bytes) -> None:
+        """Sends payload of given type."""
+
         if isinstance(payload, str):
             payload = pl_type.decode() + payload
         else:

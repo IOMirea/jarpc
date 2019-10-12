@@ -100,10 +100,14 @@ class ResponsesWithTimeout(ResponsesIterator):
 
     @property
     def responses_seen(self) -> int:
+        """Amount of yeilded responses."""
+
         return self._responses_seen
 
     @property
     def time_remaining(self) -> float:
+        """Remaining time until iterator is closed."""
+
         return self._timeout - time.time() + self._start_time
 
     def __repr__(self) -> str:
@@ -127,10 +131,10 @@ class EmptyResponses(ResponsesIterator):
 
 
 class Client(Connection, ABCClient):
-    """RPC client sends commands to servers and listens for responses."""
+    """Sends commands to servers and listens for responses."""
 
-    # Using __slots__ causes issues with Slient
-    # __slots__ = ("_default_timeout", "_default_expect_responses", "_listeners")
+    # NOTE: defining different __slots__ in Client and Server causes error creating
+    # Slient
 
     def __init__(
         self,
