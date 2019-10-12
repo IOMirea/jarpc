@@ -25,7 +25,7 @@ class StatusCode(Enum):
     INTERNAL_ERROR = 4
 
 
-class PayloadType(Enum):
+class MessageType(Enum):
     UNKNOWN_TYPE = 0
     REQUEST = 1
     RESPONSE = 2

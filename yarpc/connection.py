@@ -22,7 +22,7 @@ from typing import Any, Tuple, Union, Optional
 
 import aioredis
 
-from .enums import PayloadType
+from .enums import MessageType
 from .typing import Serializer, Deserializer
 from .request import Request
 from .response import Response
@@ -31,13 +31,13 @@ log = logging.getLogger(__name__)
 
 
 _payload_value_to_type = {
-    "0": PayloadType.REQUEST,
-    "1": PayloadType.RESPONSE,
-    b"0": PayloadType.REQUEST,
-    b"1": PayloadType.RESPONSE,
+    "0": MessageType.REQUEST,
+    "1": MessageType.RESPONSE,
+    b"0": MessageType.REQUEST,
+    b"1": MessageType.RESPONSE,
 }
 
-_payload_type_to_value = {PayloadType.REQUEST: b"0", PayloadType.RESPONSE: b"1"}
+_payload_type_to_value = {MessageType.REQUEST: b"0", MessageType.RESPONSE: b"1"}
 
 
 class Connection:
@@ -88,12 +88,13 @@ class Connection:
             redis_address, loop=self._loop, **kwargs
         )
 
-        await self._sub.subscribe(self._name)
+        channels = await self._sub.subscribe(self._name)
+        assert len(channels) == 1
 
         log.info(f"sub: connected: {self._name}")
         log.info(f"pub: connected: {self._name}")
 
-        await self._handler(self._name)
+        await self._handler(channels[0])
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -106,9 +107,9 @@ class Connection:
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             # TODO: parser
-            pl_type = _payload_value_to_type.get(msg[0:1], PayloadType.UNKNOWN_TYPE)
-            if pl_type == PayloadType.UNKNOWN_TYPE:
-                log.warn("Unknown payload type: %d", pl_type.value)
+            msg_type = _payload_value_to_type.get(msg[0:1], MessageType.UNKNOWN_TYPE)
+            if msg_type == MessageType.UNKNOWN_TYPE:
+                log.warn("Unknown payload type: %d", msg_type.value)
                 continue
 
             try:
@@ -122,12 +123,12 @@ class Connection:
                 )
                 continue
 
-            if pl_type == PayloadType.REQUEST:
+            if msg_type == MessageType.REQUEST:
                 request = self._make_request(data)
                 if request is not None:
                     await self._handle_request(request)
 
-            elif pl_type == PayloadType.RESPONSE:
+            elif msg_type == MessageType.RESPONSE:
                 response = self._make_response(data)
                 if response is not None:
                     await self._handle_response(response)
@@ -155,12 +156,12 @@ class Connection:
     async def _send_request(self, payload: Union[bytes, str]) -> None:
         """Sends payload of request type."""
 
-        await self._send(payload, _payload_type_to_value[PayloadType.REQUEST])
+        await self._send(payload, _payload_type_to_value[MessageType.REQUEST])
 
     async def _send_response(self, payload: Union[bytes, str]) -> None:
         """Sends payload of response type."""
 
-        await self._send(payload, _payload_type_to_value[PayloadType.RESPONSE])
+        await self._send(payload, _payload_type_to_value[MessageType.RESPONSE])
 
     async def _send(self, payload: Union[bytes, str], pl_type: bytes) -> None:
         """Sends payload of given type."""
