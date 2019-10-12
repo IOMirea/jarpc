@@ -32,15 +32,17 @@ open-report: .cleanCoverage
 	open htmlcov/index.html
 
 .PHONY: ci-test
-ci-test:
-	pre-commit run --all-files
+ci-test: lint
 	$(PYTEST) --cov --cov-report=xml -v
 
 .PHONY: lint
 lint:
-	flake8 $(YARPC)/"*.py"
-	mypy $(YARPC)
-	black $(YARPC)
+	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec flake8 "{}" +
+	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec black "{}" +
+	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec mypy --ignore-missing-imports "{}" +
+	@echo 'flake8....................................................................Passed'
+	@echo 'black.....................................................................Passed'
+	@echo 'mypy......................................................................Passed'
 
 .PHONY: help
 help:
