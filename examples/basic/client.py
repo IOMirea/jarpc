@@ -7,23 +7,17 @@ REDIS_PORT = 6379
 
 COMMAND_PING = 0
 COMMAND_SLOW_PING = 1
-COMMAND_FIX_CODE = 999
+COMMAND_FIX_BUGS = 42
 
 
-async def call_commands(client: Client) -> None:
-    # wait for client to establish connection
-    await asyncio.sleep(1)
+async def main(client: Client) -> None:
+    await client.wait_until_ready()
 
     ping_data = {"message": input("Enter message to send or leave blank: ")}
 
-    print("Calling PING: ", end="", flush=True)
-    print(await client.call(COMMAND_PING, ping_data))
-
-    print("Calling SLOW_PING: ", end="", flush=True)
-    print(await client.call(COMMAND_SLOW_PING, timeout=1))
-
-    print("Calling unknown command: ", end="", flush=True)
-    print(await client.call(COMMAND_FIX_CODE))
+    print("PING      ->", await client.call(COMMAND_PING, ping_data))
+    print("SLOW_PING ->", await client.call(COMMAND_SLOW_PING, timeout=1))
+    print("FIX_BUGS  ->", await client.call(COMMAND_FIX_BUGS))
 
     # exit
     client.close()
@@ -35,4 +29,4 @@ if __name__ == "__main__":
     client = Client("example", loop=loop, default_timeout=5, default_expect_responses=1)
 
     loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
-    loop.run_until_complete(call_commands(client))
+    loop.run_until_complete(main(client))

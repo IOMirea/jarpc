@@ -64,6 +64,7 @@ class Connection:
         self._name = f"rpc:{name}"
 
         self._loop = asyncio.get_event_loop() if loop is None else loop
+        self._ready = asyncio.Event(loop=self._loop)
 
         if loads and dumps:
             self._loads = loads
@@ -91,6 +92,8 @@ class Connection:
         channels = await self._sub.subscribe(self._name)
         assert len(channels) == 1
 
+        self._ready.set()
+
         log.info(f"sub: connected: {self._name}")
         log.info(f"pub: connected: {self._name}")
 
@@ -103,6 +106,11 @@ class Connection:
         """
 
         self._loop.run_until_complete(self.start(*args, **kwargs))
+
+    async def wait_until_ready(self) -> None:
+        """Waits until connection is established."""
+
+        await self._ready.wait()
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
@@ -178,6 +186,8 @@ class Connection:
         """Closes connection."""
 
         log.info("closing connections")
+
+        self._ready.clear()
 
         self._sub.close()
         self._pub.close()

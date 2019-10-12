@@ -10,7 +10,7 @@ COMMAND_PING = 0
 
 loop = asyncio.get_event_loop()
 
-sl = Slient(
+slient = Slient(
     "example",
     loop=loop,
     node=f"example-{os.getpid()}",
@@ -19,7 +19,7 @@ sl = Slient(
 )
 
 
-@sl.command(COMMAND_PING)
+@slient.command(COMMAND_PING)
 async def ping(req: Request, message: str = "") -> str:
     """Responds with provided message argument or 'pong'."""
 
@@ -28,15 +28,15 @@ async def ping(req: Request, message: str = "") -> str:
     return "pong" if message == "" else message
 
 
-async def call_commands(sl: Slient) -> None:
-    # wait for client to establish connection
-    await asyncio.sleep(1)
+async def call_ping(slient: Slient) -> None:
+    await slient.wait_until_ready()
 
-    print("Calling PING: ", end="", flush=True)
-    print(await sl.call(COMMAND_PING))
+    print("PING ->", await slient.call(COMMAND_PING))
 
 
 if __name__ == "__main__":
-    loop.create_task(sl.start((REDIS_HOST, REDIS_PORT)))
-    loop.create_task(call_commands(sl))
+    loop.create_task(slient.start((REDIS_HOST, REDIS_PORT)))
+    loop.create_task(call_ping(slient))
+
+    # continue listening for commands
     loop.run_forever()
