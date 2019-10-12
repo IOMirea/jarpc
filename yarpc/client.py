@@ -100,7 +100,7 @@ class ResponsesWithTimeout(ResponsesIterator):
 
     @property
     def responses_seen(self) -> int:
-        """Amount of yeilded responses."""
+        """Amount of yielded responses."""
 
         return self._responses_seen
 
