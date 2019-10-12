@@ -76,7 +76,7 @@ class ABCServer(ABCConnection):
     """Responds to commands."""
 
     @abc.abstractmethod
-    def register_command(self, index: int, fn: CommandType) -> int:
+    def add_command(self, index: int, fn: CommandType) -> int:
         """Registers new command."""
 
     @abc.abstractmethod

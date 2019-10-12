@@ -43,11 +43,11 @@ class Server(Connection, ABCServer):
         """Flask-style decorator used to register commands. Calls register_command."""
 
         def inner(func: CommandType) -> None:
-            self.register_command(index, func)
+            self.add_command(index, func)
 
         return inner
 
-    def register_command(self, index: int, fn: CommandType) -> int:
+    def add_command(self, index: int, fn: CommandType) -> int:
         """Registers new command. Raises ValueError if index already used."""
 
         if index in self._commands:
