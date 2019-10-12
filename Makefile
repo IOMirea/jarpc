@@ -1,29 +1,30 @@
 YARPC=yarpc
 TEST_DIR=tests
 PYTHON?=python3
-PIP?=pip
+PIP3?=pip3
 PYTEST?=pytest
 
 .PHONY: create-env
 create-env:
 	rm -rf env
-	$(PYTHON) -m $(PIP) install --user virtualenv
+	$(PYTHON) -m $(PIP3) install --user virtualenv
 	$(PYTHON) -m venv env
 	source env/bin/activate
 
 .PHONY: install
 install:
-	$(PIP) install --upgrade $(PIP)
-	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP3) install --upgrade pip
+	$(PIP3) install .
+	$(PIP3) install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP3) install pre-commit pytest pytest-cov codecov
 
 .PHONY: test
 test: .cleanCoverage
-	$(PYTEST) $(TEST_DIR)/unit
+	$(PYTEST) $(TEST_DIR)/unit -v
 
 .cleanCoverage:
 	@echo 'cleaning coverage files ...'
-	rm -f .coverage
-	rm -fr htmlcov/
+	rm -rf .coverage htmlcov/
 
 .PHONY: open-report
 open-report: .cleanCoverage
@@ -32,10 +33,14 @@ open-report: .cleanCoverage
 
 .PHONY: ci-test
 ci-test:
-	$(PIP) install -r tests/utils/requirements.txt
 	pre-commit run --all-files
-	$(PIP) install .
-	$(PYTEST) --cov --cov-report=xml
+	$(PYTEST) --cov --cov-report=xml -v
+
+.PHONY: lint
+lint:
+	flake8 $(YARPC)/"*.py"
+	mypy $(YARPC)
+	black $(YARPC)
 
 .PHONY: help
 help:

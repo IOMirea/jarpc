@@ -7,3 +7,6 @@
 aioredis==1.2.0
 async-timeout==3.0.1      # via aioredis
 hiredis==1.0.0            # via aioredis
+mypy==0.730
+black==19.3b0
+flake8==3.7.8
