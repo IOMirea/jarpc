@@ -38,17 +38,14 @@ ci-test: lint
 .PHONY: flake8
 flake8:
 	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec flake8 "{}" +
-	@echo 'flake8....................................................................Passed'
 
 .PHONY: black
 black:
 	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec black "{}" +
-	@echo 'black.....................................................................Passed'
 
 .PHONY: mypy
 mypy:
 	@find . -type d -name 'env' -prune -o -name 'docs' -prune -o -name '*.py' -exec mypy --ignore-missing-imports "{}" +
-	@echo 'mypy......................................................................Passed'
 
 .PHONY: lint
 lint: flake8 black mypy
