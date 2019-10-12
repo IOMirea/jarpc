@@ -148,6 +148,7 @@ class Client(Connection, ABCClient):
         self._default_timeout = default_timeout
         self._default_expect_responses = default_expect_responses
 
+        self._identifier = uuid.uuid4().hex
         self._listeners: Dict[str, asyncio.Queue[Response]] = {}
 
     def _make_response(self, data: Any) -> Optional[Response]:
@@ -183,7 +184,7 @@ class Client(Connection, ABCClient):
 
         log.info("sending command %d", command_index)
 
-        payload = {"c": command_index, "d": data}
+        payload = {"i": self._identifier, "c": command_index, "d": data}
 
         if timeout is None:
             timeout = self._default_timeout

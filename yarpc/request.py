@@ -27,15 +27,28 @@ from .constants import NoValue
 
 class Request:
 
-    __slots__ = ("server", "command_index", "_address", "_data", "_reply_called")
+    __slots__ = (
+        "server",
+        "command_index",
+        "_client_identifier",
+        "_address",
+        "_data",
+        "_reply_called",
+    )
 
     def __init__(
-        self, server: ABCServer, command_index: int, address: Optional[str], data: Any
+        self,
+        server: ABCServer,
+        command_index: int,
+        client_identifier: str,
+        address: Optional[str],
+        data: Any,
     ):
         self.server = server
 
         self.command_index = command_index
 
+        self._client_identifier = client_identifier
         self._address = address
         self._data = data
 
@@ -46,6 +59,7 @@ class Request:
         return cls(
             server=server,
             command_index=payload["c"],
+            client_identifier=payload["i"],
             address=payload.get("a"),
             data=payload.get("d", {}),
         )
