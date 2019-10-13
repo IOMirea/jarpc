@@ -6,7 +6,7 @@ SOURCES = yarpc examples setup.py
 
 # TODO: this is hardcoded examples list, but it should be dynamic.
 # the reason for this is that some examples run forever currently.
-EXAMPLES = examples/response_iterator.py
+EXAMPLES = examples/response_iterator.py examples/custom_encoder.py
 
 .PHONY: create-env
 create-env:
