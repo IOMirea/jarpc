@@ -29,7 +29,7 @@ jobs:
       script:
         - make flake8
         - make black-check
-        - mkae isort-check
+        - make isort-check
         # - python setup.py check -rms
     - <<: *LINTERS
       python: "3.8-dev"
