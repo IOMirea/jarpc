@@ -1,7 +1,12 @@
 PYTHON ?= python3
 PIP ?= pip
 
+# TODO: check examples with some linters (no mypy?)
 SOURCES = yarpc examples setup.py
+
+# TODO: this is hardcoded examples list, but it should be dynamic.
+# the reason for this is that some examples run forever currently.
+EXAMPLES = examples/response_iterator.py
 
 .PHONY: create-env
 create-env:
@@ -35,6 +40,13 @@ clean: .clean-cov
 	rm -rf build dist yarpc.egg-info
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
+
+.PHONY: examples
+examples: $(EXAMPLES)
+
+.PHONY: $(EXAMPLES)
+$(EXAMPLES):
+	$(PYTHON) $@
 
 .PHONY: ci-test
 ci-test:
@@ -73,11 +85,13 @@ help:
 	@echo 'Existing make targets:'
 	@echo '  black         runs black'
 	@echo '  black-check   runs black (no formatting)'
+	@echo '  ci-test       intended for Travis. runs tests and coverage'
 	@echo '  clean         cleans working directory'
 	@echo '  create-env    creates a virtualenv'
+	@echo '  examples      runs examples'
 	@echo '  install       installs all pre-requisites to run tests and coverage'
 	@echo '  isort         runs isort'
 	@echo '  isort         runs isort (no formatting)'
+	@echo '  lint          runs flake8, black, mypy, & isort (no formatting)'
 	@echo '  test          checks coverage and opens html report'
 	@echo '  open-report   checks code coverage of all Python files'
-	@echo '  lint          runs flake8, black, mypy, & isort (no formatting)'
