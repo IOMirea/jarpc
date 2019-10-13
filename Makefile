@@ -14,7 +14,7 @@ create-env:
 install:
 	$(PIP) install --upgrade pip
 	$(PIP) install .
-	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP) install -r tests/utils/requirements.txt
 	$(PIP) install -r requirements-dev.txt
 
 .PHONY: test
