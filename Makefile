@@ -27,7 +27,14 @@ open-report: .clean-cov
 
 .clean-cov:
 	@echo 'cleaning coverage files ...'
-	rm -rf .coverage htmlcov/
+	rm -rf .coverage coverage.xml htmlcov/
+
+.PHONY: clean
+clean: .clean-cov
+	rm -rf docs/_build
+	rm -rf build dist yarpc.egg-info
+	rm -rf .mypy_cache
+	rm -rf .pytest_cache
 
 .PHONY: ci-test
 ci-test:
@@ -66,6 +73,7 @@ help:
 	@echo 'Existing make targets:'
 	@echo '  black         runs black'
 	@echo '  black-check   runs black (no formatting)'
+	@echo '  clean         cleans working directory'
 	@echo '  create-env    creates a virtualenv'
 	@echo '  install       installs all pre-requisites to run tests and coverage'
 	@echo '  isort         runs isort'
