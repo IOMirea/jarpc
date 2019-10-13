@@ -10,7 +10,11 @@ COMMAND_SLOW_PING = 1
 COMMAND_FIX_BUGS = 42
 
 
-async def main(client: Client) -> None:
+async def main() -> None:
+    client = Client("example", default_timeout=5, default_expect_responses=1)
+
+    asyncio.create_task(client.start((REDIS_HOST, REDIS_PORT)))
+
     await client.wait_until_ready()
 
     ping_data = {"message": input("Enter message to send or leave blank: ")}
@@ -24,9 +28,4 @@ async def main(client: Client) -> None:
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-
-    client = Client("example", loop=loop, default_timeout=5, default_expect_responses=1)
-
-    loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
-    loop.run_until_complete(main(client))
+    asyncio.run(main())
