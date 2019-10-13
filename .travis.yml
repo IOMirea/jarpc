@@ -1,48 +1,22 @@
+version: ~> 1.0
+
+os: linux
 dist: bionic
 language: python
 
-# FIXME: redis-server runs for all jobs. It's only needed for tests/examples
+# FIXME: redis runs for all jobs. It's only needed for tests/examples
 services:
-  - redis-server
+  - redis
 
 python:
-  - "3.7"
+  - &default_py "3.7"
   - "3.8-dev"
+  - "nightly"
 
 stages:
   - lint
   - test
   - examples
-
-jobs:
-  include:
-    - &LINTERS
-      stage: lint
-      python: "3.7"
-      install:
-        - pip install -r requirements/lint.txt
-      script:
-        - make mypy
-        - make flake8
-        - make black-check
-        - make isort-check
-        - python setup.py check -ms
-    - <<: *LINTERS
-      python: "3.8-dev"
-    - stage: test
-      os: windows
-      language: shell
-      before_install:
-        - choco install python
-        - python -m pip install --upgrade pip
-        - choco install make
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
-    - stage: examples
-      python: "3.7"
-      install:
-        - pip install .
-      script:
-        - make examples
 
 cache:
   pip: true
@@ -60,3 +34,42 @@ script:
 
 after_script:
   - codecov -f coverage.xml
+
+jobs:
+  fast_finish: true
+  allow_failures:
+    - nightly
+
+  include:
+    - stage: lint
+      name: black, flake8, isort, mypy
+      python: *default_py
+      install:
+        - pip install -r requirements/lint.txt
+      script:
+        - make black-check
+        - make flake8
+        - make isort-check
+        - make mypy
+    - name: Dist check
+      python: *default_py
+      install:
+        - pip install twine
+      script:
+        - python setup.py check -ms
+        - python setup.py sdist bdist_wheel
+        - twine check dist/*
+    - stage: test
+      os: windows
+      language: shell
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+        - choco install make
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    - stage: examples
+      python: *default_py
+      install:
+        - pip install .
+      script:
+        - make examples
