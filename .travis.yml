@@ -1,6 +1,7 @@
 dist: bionic
 language: python
 
+# FIXME: redis-server runs for all jobs. It's only needed for tests/examples
 services:
   - redis-server
 
