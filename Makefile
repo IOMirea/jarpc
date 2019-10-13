@@ -19,7 +19,7 @@ install:
 
 .PHONY: test
 test:
-	$(PYTEST) tests/unit -v
+	pytest tests/unit -v
 
 .PHONY: open-report
 open-report: .clean-cov
@@ -32,7 +32,7 @@ open-report: .clean-cov
 
 .PHONY: ci-test
 ci-test:
-	$(PYTEST) --cov --cov-report=xml -v
+	pytest --cov --cov-report=xml -v
 
 .PHONY: flake8
 flake8:

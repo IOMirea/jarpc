@@ -34,7 +34,6 @@ jobs:
     - <<: *LINTERS
       python: "3.8-dev"
     - stage: test
-      name: "python 3.7 windows tests"
       os: windows
       language: shell
       before_install:
