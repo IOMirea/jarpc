@@ -9,17 +9,6 @@ stages:
   - lint
   - test
 
-matrix:
-  include:
-    - name: "Python 3.7 on Windows"
-      os: windows
-      language: shell
-      before_install:
-        - choco install python
-        - python -m pip install --upgrade pip
-        - choco install make
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
-
 jobs:
   include:
     - &MYPY
@@ -44,6 +33,15 @@ jobs:
         # - python setup.py check -rms
     - <<: *LINTERS
       python: "3.8-dev"
+    - stage: test
+      name: "python 3.7 windows tests"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+        - choco install make
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 
 cache:
   pip: true
