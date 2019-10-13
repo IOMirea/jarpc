@@ -1,4 +1,5 @@
 YARPC=yarpc
+SOURCES=$(YARPC) examples
 TEST_DIR=tests
 PYTHON?=python3
 PIP?=pip
@@ -13,17 +14,18 @@ create-env:
 
 .PHONY: install
 install:
-	$(PIP) install --upgrade $(PIP)
+	$(PIP) install --upgrade pip
+	$(PIP) install .
 	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
+	$(PIP) install pre-commit pytest pytest-cov codecov
 
 .PHONY: test
 test: .cleanCoverage
-	$(PYTEST) $(TEST_DIR)/unit
+	$(PYTEST) $(TEST_DIR)/unit -v
 
 .cleanCoverage:
 	@echo 'cleaning coverage files ...'
-	rm -f .coverage
-	rm -fr htmlcov/
+	rm -rf .coverage htmlcov/
 
 .PHONY: open-report
 open-report: .cleanCoverage
@@ -31,18 +33,36 @@ open-report: .cleanCoverage
 	open htmlcov/index.html
 
 .PHONY: ci-test
-ci-test:
-	$(PIP) install -r tests/utils/requirements.txt
-	pre-commit run --all-files
-	$(PIP) install .
-	$(PYTEST) --cov --cov-report=xml
+ci-test: lint
+	$(PYTEST) --cov --cov-report=xml -v
+
+.PHONY: flake8
+flake8:
+	flake8 $(SOURCES)
+
+.PHONY: black
+black:
+	black $(SOURCES) --check
+
+.PHONY: mypy
+mypy:
+	mypy $(SOURCES)
+
+.PHONY: isort
+isort:
+	isort $(SOURCES) -rc --check-only
+
+.PHONY: lint
+lint: flake8 black mypy isort
+# 	$(PYTHON) setup.py check -rms
+	@echo 'Linting with flake8, black, mypy & isort'
 
 .PHONY: help
 help:
-	@echo '==================================== HELP  ===================================='
+	@echo 'HELP...................................................................'
 	@echo 'create-env - creates a virtualenv'
-	@echo 'install - install all run pre requisites to run tests and coverage report'
-	@echo 'test - run unit tests on all Python files'
-	@echo 'open-report - check code coverage of all Python files'
-	@echo 'lint - run pylint and flake8 on all your Python files'
+	@echo 'install - installs all pre-requisites to run tests and coverage report'
+	@echo 'test - runs unit tests on all Python files'
+	@echo 'open-report - checks code coverage of all Python files'
+	@echo 'lint - runs flake8, black, mypy, & isort Python files '
 	@echo ''

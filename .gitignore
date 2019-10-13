@@ -42,6 +42,7 @@ venv.bak/
 
 #IDEs
 .vscode
+.idea
 
 # Session
 Session.vim
