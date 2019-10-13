@@ -33,7 +33,7 @@ jobs:
     - <<: *MYPY
       python: "3.8-dev"
     - &LINTERS
-      name: mypy
+      name: linters
       python: "3.7"
       install:
         - make install
