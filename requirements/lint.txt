@@ -2,3 +2,4 @@ mypy==0.730
 black==19.3b0
 flake8==3.7.8
 isort==4.3.21
+docutils==0.15.2  # required for setup.py check
