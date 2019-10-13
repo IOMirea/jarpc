@@ -1,12 +1,35 @@
 dist: bionic
 language: python
+
+# FIXME: redis-server runs for all jobs. It's only needed for tests/examples
+services:
+  - redis-server
+
 python:
   - "3.7"
   - "3.8-dev"
 
-matrix:
+stages:
+  - lint
+  - test
+  - examples
+
+jobs:
   include:
-    - name: "Python 3.7 on Windows"
+    - &LINTERS
+      stage: lint
+      python: "3.7"
+      install:
+        - pip install -r requirements/lint.txt
+      script:
+        - make mypy
+        - make flake8
+        - make black-check
+        - make isort-check
+        - python setup.py check -rms
+    - <<: *LINTERS
+      python: "3.8-dev"
+    - stage: test
       os: windows
       language: shell
       before_install:
@@ -14,18 +37,23 @@ matrix:
         - python -m pip install --upgrade pip
         - choco install make
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    - stage: examples
+      python: "3.7"
+      install:
+        - pip install .
+      script:
+        - make examples
 
 cache:
   pip: true
-  directories:
-    - $HOME/.cache/pre-commit
 
 env:
   global:
     - PIP_DISABLE_PIP_VERSION_CHECK=yes PIP_QUIET=yes
 
 install:
-  - make install
+  - pip install .
+  - pip install -r requirements/ci-test.txt
 
 script:
   - make ci-test

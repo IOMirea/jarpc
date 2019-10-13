@@ -1,6 +1,6 @@
 ### Python ###
 # Mypy
-.mypy_cache
+.mypy_cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -59,6 +59,7 @@ tags
 dist/
 build/
 *.egg-info/
+pip-wheel-metadata/
 
 # Docs
 _build/
