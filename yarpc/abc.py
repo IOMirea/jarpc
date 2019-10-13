@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import abc
 
-from typing import Any, Dict, List, Optional, Generator
+from typing import Any, Dict, List, Tuple, Union, Optional, Generator
 
 from .enums import StatusCode
 from .typing import CommandType
@@ -49,6 +49,8 @@ class ResponsesIterator(abc.ABC):
 
 
 class ABCConnection(abc.ABC):
+    """RPC Connection."""
+
     @abc.abstractproperty
     def name(self) -> str:
         """Connection name."""
@@ -56,6 +58,16 @@ class ABCConnection(abc.ABC):
     @abc.abstractproperty
     def node(self) -> str:
         """Node identifier."""
+
+    @abc.abstractmethod
+    async def start(
+        self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
+    ) -> None:
+        """Starts processing messages."""
+
+    @abc.abstractmethod
+    def close(self) -> None:
+        """Closes connection."""
 
 
 class ABCClient(ABCConnection):
