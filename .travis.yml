@@ -11,7 +11,7 @@ services:
 python:
   - &default_py "3.7"
   - "3.8-dev"
-  - "nightly"
+  # - "nightly"
 
 stages:
   - lint
