@@ -18,11 +18,8 @@ from typing import Any, Union, Callable
 
 __all__ = ("Serializer", "Deserializer", "CommandType")
 
-# These types are only useful for library users.
-# Variable having these types will produce typing errors upon use in internal code.
-# These errors should be explicitly suppressed.
 Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
-Deserializer = Union[Callable[[bytes], Any], Callable[[str], Any]]
+Deserializer = Callable[[bytes], Any]
 
 CommandType = Any
 

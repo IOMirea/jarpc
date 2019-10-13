@@ -38,6 +38,7 @@ async def main(encoder: Any) -> None:
     await client.wait_until_ready()
     await server.wait_until_ready()
 
+    # NOTE: json encoder does not support bytes
     data = {"data": dict(int=42, str="str", list=(1, 2, 3), dict={"a": "b"})}
 
     responses = await client.call(COMMAND_PING, data, timeout=5)

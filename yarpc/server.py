@@ -123,4 +123,4 @@ class Server(Connection, ABCServer):
         if data is not NoValue:
             payload["d"] = data
 
-        await self._send_response(self._dumps(payload))
+        await self._send_response(payload)

@@ -19,7 +19,7 @@ import uuid
 import asyncio
 import logging
 
-from typing import Any, Tuple, Union, Optional
+from typing import Any, Tuple, Union, Mapping, Optional
 
 import aioredis
 
@@ -32,14 +32,8 @@ from .response import Response
 log = logging.getLogger(__name__)
 
 
-_payload_value_to_type = {
-    "0": MessageType.REQUEST,
-    "1": MessageType.RESPONSE,
-    b"0": MessageType.REQUEST,
-    b"1": MessageType.RESPONSE,
-}
-
-_payload_type_to_value = {MessageType.REQUEST: b"0", MessageType.RESPONSE: b"1"}
+_payload_value_to_type = {b"0": MessageType.REQUEST, b"1": MessageType.RESPONSE}
+_payload_type_to_value = {v: k for k, v in _payload_value_to_type.items()}
 
 
 class Connection(ABCConnection):
@@ -109,9 +103,12 @@ class Connection(ABCConnection):
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
         async for msg in channel.iter():
             # TODO: parser
-            msg_type = _payload_value_to_type.get(msg[0:1], MessageType.UNKNOWN_TYPE)
+            message_type_byte = msg[0:1]
+            msg_type = _payload_value_to_type.get(
+                message_type_byte, MessageType.UNKNOWN_TYPE
+            )
             if msg_type == MessageType.UNKNOWN_TYPE:
-                log.warn("Unknown payload type: %d", msg_type.value)
+                log.warn(f"Unknown payload type: {message_type_byte}")
                 continue
 
             try:
@@ -155,25 +152,26 @@ class Connection(ABCConnection):
 
         pass
 
-    async def _send_request(self, payload: Union[bytes, str]) -> None:
+    async def _send_request(self, payload: Mapping[str, Any]) -> None:
         """Sends payload of request type."""
 
         await self._send(payload, _payload_type_to_value[MessageType.REQUEST])
 
-    async def _send_response(self, payload: Union[bytes, str]) -> None:
+    async def _send_response(self, payload: Mapping[str, Any]) -> None:
         """Sends payload of response type."""
 
         await self._send(payload, _payload_type_to_value[MessageType.RESPONSE])
 
-    async def _send(self, payload: Union[bytes, str], pl_type: bytes) -> None:
+    async def _send(self, payload: Mapping[str, Any], pl_type: bytes) -> None:
         """Sends payload of given type."""
 
-        if isinstance(payload, str):
-            payload = pl_type.decode() + payload
-        else:
-            payload = pl_type + payload
+        encoded = self._dumps(payload)
+        if isinstance(encoded, str):
+            encoded = encoded.encode()
 
-        num_listeners = await self._pub.publish(self._name, payload)
+        encoded = pl_type + encoded
+
+        num_listeners = await self._pub.publish(self._name, encoded)
         log.debug(f"delivered to {num_listeners} listeners")
 
     def close(self) -> None:

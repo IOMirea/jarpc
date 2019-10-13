@@ -199,7 +199,7 @@ class Client(Connection, ABCClient):
             queue: asyncio.Queue[Response] = asyncio.Queue(loop=self._loop)
             self._add_queue(address, queue)
 
-        asyncio.create_task(self._send_request(self._dumps(payload)))
+        asyncio.create_task(self._send_request(payload))
 
         if timeout is None:
             return EmptyResponses()
