@@ -11,26 +11,18 @@ stages:
 
 jobs:
   include:
-    - &MYPY
-      stage: lint
-      name: mypy
-      python: "3.7"
-      install:
-        - pip install mypy
-      script:
-        - make mypy
-    - <<: *MYPY
-      python: "3.8-dev"
     - &LINTERS
+      stage: lint
       name: linters
       python: "3.7"
       install:
-        - make install
+        - pip install -r requirements/lint.txt
       script:
+        - make mypy
         - make flake8
         - make black-check
         - make isort-check
-        # - python setup.py check -rms
+        - python setup.py check -rms
     - <<: *LINTERS
       python: "3.8-dev"
     - stage: test
@@ -50,8 +42,7 @@ env:
     - PIP_DISABLE_PIP_VERSION_CHECK=yes PIP_QUIET=yes
 
 install:
-  - pip install codecov
-  - pip install -r tests/utils/requirements.txt
+  - pip install -r requirements/ci-test.txt
 
 script:
   - make ci-test

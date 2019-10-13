@@ -1,7 +1,7 @@
 PYTHON ?= python3
 PIP ?= pip
 
-SOURCES = yarpc examples
+SOURCES = yarpc examples setup.py
 
 .PHONY: create-env
 create-env:
@@ -14,8 +14,7 @@ create-env:
 install:
 	$(PIP) install --upgrade pip
 	$(PIP) install .
-	$(PIP) install -r tests/utils/requirements.txt
-	$(PIP) install -r requirements-dev.txt
+	$(PIP) install -r requirements/dev.txt
 
 .PHONY: test
 test:
@@ -60,7 +59,7 @@ isort-check:
 
 .PHONY: lint
 lint: flake8 black-check mypy isort-check
-# 	$(PYTHON) setup.py check -rms
+	$(PYTHON) setup.py check -rms
 
 .PHONY: help
 help:
