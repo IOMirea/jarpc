@@ -16,7 +16,6 @@ create-env:
 install:
 	$(PIP) install --upgrade pip
 	$(PIP) install .
-# 	$(PYTHON) setup.py check -rms
 	$(PIP) install -r $(TEST_DIR)/utils/requirements.txt
 	$(PIP) install pre-commit pytest pytest-cov codecov
 
@@ -55,7 +54,8 @@ isort:
 
 .PHONY: lint
 lint: flake8 black mypy isort
-	@echo 'Linting with flake8, black & mypy'
+# 	$(PYTHON) setup.py check -rms
+	@echo 'Linting with flake8, black, mypy & isort'
 
 .PHONY: help
 help:
