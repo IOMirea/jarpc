@@ -26,7 +26,7 @@ jobs:
         - make flake8
         - make black-check
         - make isort-check
-        - python setup.py check -rms
+        - python setup.py check -ms
     - <<: *LINTERS
       python: "3.8-dev"
     - stage: test

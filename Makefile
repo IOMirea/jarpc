@@ -78,7 +78,7 @@ isort-check:
 
 .PHONY: lint
 lint: flake8 black-check mypy isort-check
-	$(PYTHON) setup.py check -rms
+	$(PYTHON) setup.py check -ms
 
 .PHONY: help
 help:
