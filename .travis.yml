@@ -1,7 +1,10 @@
 version: ~> 1.0
 
 os: linux
-dist: bionic
+
+# latest pypy3 is not available on bionic, it is not possible to set different distro
+# for pypy3 build
+dist: xenial
 language: python
 
 # FIXME: redis runs for all jobs. It's only needed for tests/examples
@@ -75,5 +78,3 @@ jobs:
         - pip install .
       script:
         - make examples
-    - python: pypy3
-      dist: xenial
