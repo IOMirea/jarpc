@@ -33,8 +33,4 @@ async def slow_ping(req: Request) -> str:
 
 
 if __name__ == "__main__":
-    try:
-        server.run((REDIS_HOST, REDIS_PORT))
-    except KeyboardInterrupt:
-        for task in asyncio.all_tasks():
-            task.cancel()
+    server.run((REDIS_HOST, REDIS_PORT))

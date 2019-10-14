@@ -13,7 +13,8 @@ COMMAND_FIX_BUGS = 42
 async def main() -> None:
     client = Client("example", default_timeout=5, default_expect_responses=1)
 
-    asyncio.create_task(client.start((REDIS_HOST, REDIS_PORT)))
+    loop = asyncio.get_event_loop()
+    loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
 
     await client.wait_until_ready()
 
@@ -28,4 +29,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
