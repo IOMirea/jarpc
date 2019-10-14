@@ -1,7 +1,10 @@
 version: ~> 1.0
 
 os: linux
-dist: bionic
+
+# latest pypy3 is not available on bionic, it is not possible to set different distro
+# for pypy3 build
+dist: xenial
 language: python
 
 # FIXME: redis runs for all jobs. It's only needed for tests/examples
@@ -9,8 +12,10 @@ services:
   - redis
 
 python:
-  - &default_py 3.7
+  - &default_py 3.6
+  - 3.7
   - 3.8-dev
+  - pypy3
   # - nightly
 
 stages:
@@ -37,8 +42,10 @@ after_script:
 
 jobs:
   fast_finish: true
-  # allow_failures:
-  #   - nightly
+  allow_failures:
+    - 3.6
+    - pypy3
+    # - nightly
 
   include:
     - stage: lint

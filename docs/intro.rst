@@ -10,7 +10,7 @@ It supports 3 runmodes: Client, Server and Slient.
 Prerequisites
 -------------
 
-yarpc requires a Python version of 3.7 or higher.
+yarpc requires a Python version of 3.6 or higher.
 
 Installing
 ----------

@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import time
 import uuid
 import asyncio
@@ -24,6 +22,7 @@ import logging
 from typing import Any, Dict, List, Optional, Generator
 
 from .abc import ABCClient, ResponsesIterator
+from .typing import TypedQueue
 from .response import Response
 from .connection import Connection
 
@@ -45,8 +44,8 @@ class ResponsesWithTimeout(ResponsesIterator):
 
     def __init__(
         self,
-        client: Client,
-        queue: asyncio.Queue[Response],
+        client: "Client",
+        queue: TypedQueue[Response],
         address: str,
         timeout: float,
         expect_responses: Optional[int] = None,
@@ -76,7 +75,7 @@ class ResponsesWithTimeout(ResponsesIterator):
 
         return coro().__await__()
 
-    def __aiter__(self) -> ResponsesWithTimeout:
+    def __aiter__(self) -> "ResponsesWithTimeout":
         return self
 
     async def __anext__(self) -> Response:
@@ -127,7 +126,7 @@ class EmptyResponses(ResponsesIterator):
 
         return coro().__await__()
 
-    def __aiter__(self) -> EmptyResponses:
+    def __aiter__(self) -> "EmptyResponses":
         return self
 
     async def __anext__(self) -> Response:
@@ -152,7 +151,7 @@ class Client(Connection, ABCClient):
         self._default_timeout = default_timeout
         self._default_expect_responses = default_expect_responses
 
-        self._listeners: Dict[str, asyncio.Queue[Response]] = {}
+        self._listeners: Dict[str, TypedQueue[Response]] = {}
 
     def _make_response(self, data: Any) -> Optional[Response]:
         return Response.from_data(data)
@@ -167,7 +166,7 @@ class Client(Connection, ABCClient):
 
         await queue.put(response)
 
-    def _add_queue(self, address: str, queue: asyncio.Queue[Response]) -> None:
+    def _add_queue(self, address: str, queue: TypedQueue[Response]) -> None:
         self._listeners[address] = queue
 
     def _remove_queue(self, address: str) -> None:
@@ -196,10 +195,10 @@ class Client(Connection, ABCClient):
             address = uuid.uuid4().hex
             payload["a"] = address
 
-            queue: asyncio.Queue[Response] = asyncio.Queue(loop=self._loop)
+            queue: TypedQueue[Response] = TypedQueue(loop=self._loop)
             self._add_queue(address, queue)
 
-        asyncio.create_task(self._send_request(payload))
+        self._loop.create_task(self._send_request(payload))
 
         if timeout is None:
             return EmptyResponses()

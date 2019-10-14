@@ -20,7 +20,12 @@ async def ping(req: Request, data: Any) -> str:
     return data
 
 
-async def main(encoder: Any) -> None:
+async def main() -> None:
+    await test_encoder(json)
+    await test_encoder(pickle)
+
+
+async def test_encoder(encoder: Any) -> None:
     print("Testing encoder", encoder)
 
     client = Client(
@@ -32,8 +37,10 @@ async def main(encoder: Any) -> None:
     server = Server("custom_encoder", loads=encoder.loads, dumps=encoder.dumps)
     server.add_command(COMMAND_PING, ping)
 
-    asyncio.create_task(client.start((REDIS_HOST, REDIS_PORT)))
-    asyncio.create_task(server.start((REDIS_HOST, REDIS_PORT)))
+    loop = asyncio.get_event_loop()
+
+    loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
+    loop.create_task(server.start((REDIS_HOST, REDIS_PORT)))
 
     await client.wait_until_ready()
     await server.wait_until_ready()
@@ -51,5 +58,5 @@ async def main(encoder: Any) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main(json))
-    asyncio.run(main(pickle))
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

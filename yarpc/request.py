@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import warnings
 
 from typing import Any, Dict, Optional
@@ -55,7 +53,7 @@ class Request:
         self._reply_called = False
 
     @classmethod
-    def from_data(cls, server: ABCServer, payload: Dict[str, Any]) -> Request:
+    def from_data(cls, server: ABCServer, payload: Dict[str, Any]) -> "Request":
         return cls(
             server=server,
             command_index=payload["c"],
