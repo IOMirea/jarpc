@@ -9,8 +9,8 @@ services:
   - redis
 
 python:
-  - 3.6
-  - &default_py 3.7
+  - &default_py 3.6
+  - 3.7
   - 3.8-dev
   - pypy3
   # - nightly
@@ -75,3 +75,5 @@ jobs:
         - pip install .
       script:
         - make examples
+    - python: pypy3
+      dist: bionic

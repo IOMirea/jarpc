@@ -14,7 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Any, Union, Callable
+import asyncio
+
+from typing import Any, Union, Generic, TypeVar, Callable
 
 __all__ = ("Serializer", "Deserializer", "CommandType")
 
@@ -35,3 +37,10 @@ CommandType = Any
 # _CommandType = Callable[["Server", KwArg(Any)], Awaitable[Any]]
 #
 # typing.TypeVar ?
+
+
+T = TypeVar("T")
+
+
+class TypedQueue(asyncio.Queue, Generic[T]):  # type: ignore
+    ...
