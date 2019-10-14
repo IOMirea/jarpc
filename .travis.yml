@@ -76,4 +76,4 @@ jobs:
       script:
         - make examples
     - python: pypy3
-      dist: bionic
+      dist: xenial
