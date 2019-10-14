@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 from typing import Any, Dict
 
 from .enums import StatusCode
@@ -33,7 +31,7 @@ class Response:
         self._address = address
 
     @classmethod
-    def from_data(cls, payload: Dict[str, Any]) -> Response:
+    def from_data(cls, payload: Dict[str, Any]) -> "Response":
         return cls(
             status=StatusCode(payload["s"]),
             node=payload["n"],

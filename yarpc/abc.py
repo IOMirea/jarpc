@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import abc
 
 from typing import Any, Dict, List, Tuple, Union, Optional, Generator
@@ -40,7 +38,7 @@ class ResponsesIterator(abc.ABC):
         """Returns all responses once they are ready."""
 
     @abc.abstractmethod
-    def __aiter__(self) -> ResponsesIterator:
+    def __aiter__(self) -> "ResponsesIterator":
         ...
 
     @abc.abstractmethod

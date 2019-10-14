@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from __future__ import annotations
-
 import time
 import uuid
 import asyncio
@@ -45,7 +43,7 @@ class ResponsesWithTimeout(ResponsesIterator):
 
     def __init__(
         self,
-        client: Client,
+        client: "Client",
         queue: asyncio.Queue[Response],
         address: str,
         timeout: float,
@@ -76,7 +74,7 @@ class ResponsesWithTimeout(ResponsesIterator):
 
         return coro().__await__()
 
-    def __aiter__(self) -> ResponsesWithTimeout:
+    def __aiter__(self) -> "ResponsesWithTimeout":
         return self
 
     async def __anext__(self) -> Response:
@@ -127,7 +125,7 @@ class EmptyResponses(ResponsesIterator):
 
         return coro().__await__()
 
-    def __aiter__(self) -> EmptyResponses:
+    def __aiter__(self) -> "EmptyResponses":
         return self
 
     async def __anext__(self) -> Response:

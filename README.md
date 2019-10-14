@@ -42,7 +42,7 @@ COMMAND_FIX_BUGS = 42
 
 async def main() -> None:
     client = Client("example", default_timeout=5, default_expect_responses=1)
-    
+
 
     asyncio.create_task(client.start((REDIS_HOST, REDIS_PORT)))
 
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 More examples can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).
 
 ### Dependencies
-- Python >= 3.7
+- Python >= 3.6
 - [aioredis](https://github.com/aio-libs/aioredis)
 
 ### Documentation
