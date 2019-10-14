@@ -9,8 +9,10 @@ services:
   - redis
 
 python:
+  - 3.6
   - &default_py 3.7
   - 3.8-dev
+  - pypy3
   # - nightly
 
 stages:
@@ -37,8 +39,10 @@ after_script:
 
 jobs:
   fast_finish: true
-  # allow_failures:
-  #   - nightly
+  allow_failures:
+    - 3.6
+    - pypy3
+    # - nightly
 
   include:
     - stage: lint
