@@ -9,9 +9,9 @@ services:
   - redis
 
 python:
-  - &default_py "3.7"
-  - "3.8-dev"
-  # - "nightly"
+  - &default_py 3.7
+  - 3.8-dev
+  # - nightly
 
 stages:
   - lint
@@ -23,7 +23,7 @@ cache:
 
 env:
   global:
-    - PIP_DISABLE_PIP_VERSION_CHECK=yes PIP_QUIET=yes
+    - PIP_DISABLE_PIP_VERSION_CHECK=yes
 
 install:
   - pip install .
@@ -37,8 +37,8 @@ after_script:
 
 jobs:
   fast_finish: true
-  allow_failures:
-    - nightly
+  # allow_failures:
+  #   - nightly
 
   include:
     - stage: lint
@@ -54,11 +54,9 @@ jobs:
     - name: Dist check
       python: *default_py
       install:
-        - pip install twine
+        - pip install -r requirements/wheels.txt
       script:
-        - python setup.py check -ms
-        - python setup.py sdist bdist_wheel
-        - twine check dist/*
+        - make dist-check
     - stage: test
       os: windows
       language: shell

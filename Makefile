@@ -22,11 +22,11 @@ install:
 	$(PIP) install -r requirements/dev.txt
 
 .PHONY: test
-test:
+test: .pytest-version
 	pytest tests/unit -v
 
 .PHONY: open-report
-open-report: .clean-cov
+open-report: .clean-cov .pytest-version
 	pytest --cov=yarpc --cov-report=term-missing --cov-report=html
 	open file://`pwd`/htmlcov/index.html
 
@@ -49,36 +49,47 @@ $(EXAMPLES):
 	$(PYTHON) $@
 
 .PHONY: ci-test
-ci-test:
+ci-test: .pytest-version
 	pytest --cov --cov-report=xml -v
 
+.PHONY: dist-check
+dist-check: .twine-version
+	$(PYTHON) setup.py check -ms
+	$(PYTHON) setup.py sdist bdist_wheel
+	twine check dist/*
+
 .PHONY: flake8
-flake8:
+flake8: .flake8-version
 	flake8 $(SOURCES)
 
 .PHONY: black
-black:
+black: .black-version
 	black $(SOURCES)
 
 .PHONY: black-check
-black-check:
+black-check: .black-version
 	black $(SOURCES) --check
 
 .PHONY: mypy
-mypy:
+mypy: .mypy-version
 	mypy $(SOURCES)
 
 .PHONY: isort
-isort:
+isort: .isort-version
 	isort $(SOURCES) -rc
 
-.PHONY: isort-check
-isort-check:
+.PHONY: .isort-check
+isort-check: .isort-version
 	isort $(SOURCES) -rc --check-only
 
 .PHONY: lint
 lint: flake8 black-check mypy isort-check
 	$(PYTHON) setup.py check -ms
+
+.%-version:
+	@echo
+	$* --version
+	@echo
 
 .PHONY: help
 help:
@@ -88,6 +99,7 @@ help:
 	@echo '  ci-test       intended for Travis. runs tests and coverage'
 	@echo '  clean         cleans working directory'
 	@echo '  create-env    creates a virtualenv'
+	@echo '  dist-check    builds dist wheels and runs twine checks'
 	@echo '  examples      runs examples'
 	@echo '  install       installs all pre-requisites to run tests and coverage'
 	@echo '  isort         runs isort'
