@@ -1,10 +1,6 @@
 version: ~> 1.0
 
-os: linux
-
-# latest pypy3 is not available on bionic, it is not possible to set different distro
-# for pypy3 build
-dist: xenial
+dist: bionic
 language: python
 
 # FIXME: redis runs for all jobs. It's only needed for tests/examples
@@ -15,7 +11,7 @@ python:
   - &default_py 3.6
   - 3.7
   - 3.8-dev
-  - pypy3
+  # - pypy3
   # - nightly
 
 stages:
@@ -42,10 +38,6 @@ after_script:
 
 jobs:
   fast_finish: true
-  allow_failures:
-    - 3.6
-    - pypy3
-    # - nightly
 
   include:
     - stage: lint
@@ -58,12 +50,14 @@ jobs:
         - make flake8
         - make isort-check
         - make mypy
+
     - name: Dist check
       python: *default_py
       install:
         - pip install -r requirements/wheels.txt
       script:
         - make dist-check
+
     - stage: test
       os: windows
       language: shell
@@ -72,6 +66,11 @@ jobs:
         - python -m pip install --upgrade pip
         - choco install make
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+
+    - python: pypy3
+      os: linux
+      dist: xenial  # pypy 7-3.6 is not yet supported on bionic in travis
+
     - stage: examples
       python: *default_py
       install:
