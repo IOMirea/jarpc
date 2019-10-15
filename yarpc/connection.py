@@ -52,7 +52,7 @@ class Connection(ABCConnection):
         self._node = uuid.uuid4().hex if node is None else node
 
         self._loop = asyncio.get_event_loop() if loop is None else loop
-        self._ready = asyncio.Event(loop=self._loop)
+        self._ready = asyncio.Event()
 
         if loads and dumps:
             self._loads = loads
