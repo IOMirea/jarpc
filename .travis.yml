@@ -10,9 +10,9 @@ services:
 python:
   - &default_py 3.6
   - 3.7
-  - 3.8-dev
+  - 3.8
   # - pypy3
-  # - nightly
+  - nightly
 
 stages:
   - lint
@@ -38,6 +38,8 @@ after_script:
 
 jobs:
   fast_finish: true
+  allow_failures:
+    - nightly
 
   include:
     - stage: lint
@@ -65,7 +67,7 @@ jobs:
         - choco install python
         - python -m pip install --upgrade pip
         - choco install make
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
 
     - python: pypy3
       os: linux
