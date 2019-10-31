@@ -58,3 +58,7 @@ build/
 
 # Docs
 _build/
+
+# ply
+lextab.py
+parsetab.py
