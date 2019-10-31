@@ -14,18 +14,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from enum import Enum
+import asyncio
+
+from typing import Any, Union, Generic, TypeVar, Callable
+
+__all__ = ("Serializer", "Deserializer", "CommandType")
+
+Serializer = Union[Callable[[Any], bytes], Callable[[Any], str]]
+Deserializer = Callable[[bytes], Any]
+
+CommandType = Any
+
+# TODO: annotate _CommandType properly.
+# Possible solutions (do not work for different reasons)
+#
+# typing_extensions.Protocol
+# class _CommandType(Protocol):
+#     def __call__(self, __request: Request, **kwargs: Any) -> Any:
+#         ...
+#
+# mypy_extensions.KwArg
+# _CommandType = Callable[["Server", KwArg(Any)], Awaitable[Any]]
+#
+# typing.TypeVar ?
 
 
-class StatusCode(Enum):
-    SUCCESS = 0
-    BAD_FORMAT = 1
-    UNKNOWN_COMMAND = 2
-    BAD_PARAMS = 3
-    INTERNAL_ERROR = 4
+T = TypeVar("T")
 
 
-class MessageType(Enum):
-    UNKNOWN_TYPE = 0
-    REQUEST = 1
-    RESPONSE = 2
+class TypedQueue(asyncio.Queue, Generic[T]):  # type: ignore
+    ...

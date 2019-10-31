@@ -1,36 +1,81 @@
+version: ~> 1.0
+
 dist: bionic
 language: python
-python:
-  - "3.7"
-  - "3.8-dev"
 
-matrix:
+# FIXME: redis runs for all jobs. It's only needed for tests/examples
+services:
+  - redis
+
+python:
+  - &default_py 3.6
+  - 3.7
+  - 3.8
+  # - pypy3
+  - nightly
+
+stages:
+  - lint
+  - test
+  - examples
+
+cache:
+  pip: true
+
+env:
+  global:
+    - PIP_DISABLE_PIP_VERSION_CHECK=yes
+
+install:
+  - pip install .
+  - pip install -r requirements/ci-test.txt
+
+script:
+  - make ci-test
+
+after_script:
+  - codecov -f coverage.xml
+
+jobs:
+  fast_finish: true
+  allow_failures:
+    - nightly
+
   include:
-    - name: "Python 3.7 on Windows"
+    - stage: lint
+      name: black, flake8, isort, mypy
+      python: *default_py
+      install:
+        - pip install -r requirements/lint.txt
+      script:
+        - make black-check
+        - make flake8
+        - make isort-check
+        - make mypy
+
+    - name: Dist check
+      python: *default_py
+      install:
+        - pip install -r requirements/wheels.txt
+      script:
+        - make dist-check
+
+    - stage: test
       os: windows
       language: shell
       before_install:
         - choco install python
         - python -m pip install --upgrade pip
-      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+        - choco install make
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
 
-cache:
-  pip: true
-  directories:
-    - $HOME/.cache/pre-commit
+    - python: pypy3
+      os: linux
+      dist: xenial  # pypy 7-3.6 is not yet supported on bionic in travis
 
-env:
-  global:
-    - PIP_DISABLE_PIP_VERSION_CHECK=yes PIP_QUIET=yes
-
-install:
-  - pip3 install --upgrade pip
-  - pip3 install pre-commit pytest pytest-cov codecov
-
-script:
-  - pre-commit run --all-files
-  - pip3 install .
-  - pytest --cov --cov-report=xml
-
-after_script:
-  - codecov -f coverage.xml
+    - stage: examples
+      python: *default_py
+      install:
+        - pip install .
+      script:
+        - make examples

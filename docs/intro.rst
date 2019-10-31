@@ -5,12 +5,12 @@ Introduction
 
 This is the documentation for yarpc, a library for asynchronous RPC via `Redis <https://redis.io/>`__ pubsub channels.
 
-It supports 2 runmodes: Client and Server. Support for ClientServer is planned.
+It supports 3 runmodes: Client, Server and Slient.
 
 Prerequisites
 -------------
 
-yarpc requires a Python version of 3.7 or higher.
+yarpc requires a Python version of 3.6 or higher.
 
 Installing
 ----------
@@ -31,10 +31,15 @@ Setup a quick Redis instance via `Docker <https://docker.com/>`__: ::
 
 Client example
 
-.. literalinclude:: ../examples/client.py
+.. literalinclude:: ../examples/basic/client.py
    :language: python
 
 Server example
 
-.. literalinclude:: ../examples/server.py
+.. literalinclude:: ../examples/basic/server.py
+    :language: python
+
+Slient example
+
+.. literalinclude:: ../examples/basic/slient.py
     :language: python

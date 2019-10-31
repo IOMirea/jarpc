@@ -1,6 +1,6 @@
 ### Python ###
 # Mypy
-.mypy_cache
+.mypy_cache/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -40,6 +40,10 @@ venv.bak/
 [._]ss[a-gi-z]
 [._]sw[a-p]
 
+#IDEs
+.vscode
+.idea
+
 # Session
 Session.vim
 
@@ -55,6 +59,7 @@ tags
 dist/
 build/
 *.egg-info/
+pip-wheel-metadata/
 
 # Docs
 _build/

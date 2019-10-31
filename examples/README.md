@@ -7,9 +7,9 @@ After installing redis, open terminal and run `redis-server`.
 After ensuring that redis is running you will need to open 2 more terminals and run the following commands.
 
 #### Terminal 1
-`python3 examples/server.py`
+`python3 examples/basic/server.py`
 
 #### Terminal 2
-`python3 examples/client.py`
+`python3 examples/basic/client.py`
 
 You should now see messages in both terminals.

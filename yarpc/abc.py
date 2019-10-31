@@ -2,28 +2,27 @@
 # Copyright (C) 2019  Eugene Ershov
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU Affero General Public License
+# You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-from __future__ import annotations
 
 import abc
 
-from typing import Any, Dict, List, Optional, Generator
+from typing import Any, Dict, List, Tuple, Union, Optional, Generator
 
 from .enums import StatusCode
+from .typing import CommandType
 from .response import Response
 
-__all__ = ("ResponsesIterator", "ABCClient", "ABCServer")
+__all__ = ("ResponsesIterator", "ABCConnection", "ABCClient", "ABCServer")
 
 
 class ResponsesIterator(abc.ABC):
@@ -36,10 +35,10 @@ class ResponsesIterator(abc.ABC):
 
     @abc.abstractmethod
     def __await__(self) -> Generator[Any, None, List[Response]]:
-        ...
+        """Returns all responses once they are ready."""
 
     @abc.abstractmethod
-    def __aiter__(self) -> ResponsesIterator:
+    def __aiter__(self) -> "ResponsesIterator":
         ...
 
     @abc.abstractmethod
@@ -47,25 +46,31 @@ class ResponsesIterator(abc.ABC):
         ...
 
 
-class RPCTransport(abc.ABC):
-    @abc.abstractmethod
-    def close(self) -> None:
-        ...
+class ABCConnection(abc.ABC):
+    """RPC Connection."""
 
+    @abc.abstractproperty
+    def name(self) -> str:
+        """Connection name."""
 
-class ABCServer(RPCTransport):
     @abc.abstractproperty
     def node(self) -> str:
-        ...
+        """Node identifier."""
 
     @abc.abstractmethod
-    async def reply(
-        self, *, address: Optional[str], status: StatusCode, data: Any
+    async def start(
+        self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
-        ...
+        """Starts processing messages."""
+
+    @abc.abstractmethod
+    def close(self) -> None:
+        """Closes connection."""
 
 
-class ABCClient(RPCTransport):
+class ABCClient(ABCConnection):
+    """Calls commands."""
+
     @abc.abstractmethod
     def call(
         self,
@@ -74,4 +79,22 @@ class ABCClient(RPCTransport):
         timeout: Optional[float] = None,
         expect_responses: int = 0,
     ) -> ResponsesIterator:
-        ...
+        """Calls command by index."""
+
+
+class ABCServer(ABCConnection):
+    """Responds to commands."""
+
+    @abc.abstractmethod
+    def add_command(self, index: int, fn: CommandType) -> int:
+        """Registers new command."""
+
+    @abc.abstractmethod
+    def remove_command(self, index: int) -> CommandType:
+        """Removes existing command."""
+
+    @abc.abstractmethod
+    async def reply(
+        self, *, address: Optional[str], status: StatusCode, data: Any
+    ) -> None:
+        """Sends response to address."""
