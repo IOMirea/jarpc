@@ -23,7 +23,7 @@ sys.path.insert(0, os.path.abspath(".."))
 year = datetime.date.today().year
 
 version = ""
-with open("../yarpc/__init__.py") as f:
+with open("../jarpc/__init__.py") as f:
     cont = f.read()
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', cont, re.MULTILINE
@@ -32,7 +32,7 @@ with open("../yarpc/__init__.py") as f:
         r'^__author__\s*=\s*[\'"]([^\'"]*)[\'"]', cont, re.MULTILINE
     ).group(1)
 
-project = "yarpc"
+project = "jarpc"
 copyright = f"{year}, {author}"
 
 # The full version, including alpha/beta/rc tags
@@ -77,5 +77,5 @@ html_logo = "logo.png"
 html_favicon = "logo.png"
 
 html_last_updated_fmt = "%d %b %Y"
-releases_github_path = "IOMirea/yarpc"
+releases_github_path = "IOMirea/jarpc"
 releases_unstable_prehistory = True

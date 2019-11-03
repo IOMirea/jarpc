@@ -1,4 +1,4 @@
-from yarpc import constants
+from jarpc import constants
 
 
 def test_NoValue_object():

@@ -1,14 +1,14 @@
-# yarpc
+# jarpc
 
 ## Warning: project is in early development stage, expect bugs and frequent breaking changes
 
-yarpc - Yet another python RPC library based on redis pubsub. It is built with [aioredis](https://github.com/aio-libs/aioredis).
+jarpc - Just another python RPC library based on redis pubsub. It is built with [aioredis](https://github.com/aio-libs/aioredis).
 
-<img src="https://raw.githubusercontent.com/IOMirea/yarpc/master/docs/logo.png" height="100">
+<img src="https://raw.githubusercontent.com/IOMirea/jarpc/master/docs/logo.png" height="100">
 
-[![Documentation Status](https://readthedocs.org/projects/yarpc/badge/?version=latest)](https://yarpc.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/IOMirea/yarpc.svg?branch=master)](https://travis-ci.org/IOMirea/yarpc)
-[![codecov](https://codecov.io/gh/IOMirea/yarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/yarpc)
+[![Documentation Status](https://readthedocs.org/projects/jarpc/badge/?version=latest)](https://jarpc.readthedocs.io/en/latest/?badge=latest)
+[![Build Status](https://travis-ci.org/IOMirea/jarpc.svg?branch=master)](https://travis-ci.org/IOMirea/jarpc)
+[![codecov](https://codecov.io/gh/IOMirea/jarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/jarpc)
 
 ### Features
 - `Client`, `Server` and `Slient` connection modes.
@@ -22,7 +22,7 @@ yarpc - Yet another python RPC library based on redis pubsub. It is built with [
 - encoding customization (marshal (default), json, msgpack, pickle, ...).
 
 ### Installation
-Library can be installed from repository: `pip install git+https://github.com/IOMirea/yarpc.git#egg=yarpc` (PyPI release soon)
+Library can be installed from repository: `pip install git+https://github.com/IOMirea/jarpc.git#egg=jarpc` (PyPI release soon)
 
 ### Examples
 
@@ -30,7 +30,7 @@ Library can be installed from repository: `pip install git+https://github.com/IO
 ```python
 import asyncio
 
-from yarpc import Client
+from jarpc import Client
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 import os
 import asyncio
 
-from yarpc import Server, Request
+from jarpc import Server, Request
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 import os
 import asyncio
 
-from yarpc import Slient, Request
+from jarpc import Slient, Request
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -149,17 +149,17 @@ if __name__ == "__main__":
     loop.run_forever()
 ```
 
-More examples can be found in [examples folder](https://github.com/IOMirea/yarpc/blob/master/examples).
+More examples can be found in [examples folder](https://github.com/IOMirea/jarpc/blob/master/examples).
 
 ### Dependencies
 - Python >= 3.6
 - [aioredis](https://github.com/aio-libs/aioredis)
 
 ### Documentation
-Documentation is available at https://yarpc.readthedocs.io
+Documentation is available at https://jarpc.readthedocs.io
 
 ### Source code
-Source code is available on GitHub: https://github.com/IOMirea/yarpc
+Source code is available on GitHub: https://github.com/IOMirea/jarpc
 
 ### Protocol specification
 Soon
@@ -168,4 +168,4 @@ Soon
 Feel free to open an issue or submit a pull request.  
 
 ## License
-Source code is available under GPL v3.0 license, you can see it [here](https://github.com/IOMirea/yarpc/blob/master/LICENSE).
+Source code is available under GPL v3.0 license, you can see it [here](https://github.com/IOMirea/jarpc/blob/master/LICENSE).

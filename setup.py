@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 version = ""
 author = ""
 
-with open("yarpc/__init__.py") as f:
+with open("jarpc/__init__.py") as f:
     cont = f.read()
     version_gr = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', cont, re.MULTILINE
@@ -22,14 +22,14 @@ with open("yarpc/__init__.py") as f:
         author = author_gr.group(1)
 
 setuptools.setup(
-    name="yarpc",
+    name="jarpc",
     version=version,
     author=author,
     author_email="fogaprod@gmail.com",
     description="RPC over redis communication library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/IOMirea/yarpc",
+    url="https://github.com/IOMirea/jarpc",
     install_requires=install_requires,
     python_requires=">=3.6",
     packages=setuptools.find_packages(),

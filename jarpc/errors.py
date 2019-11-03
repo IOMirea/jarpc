@@ -1,4 +1,4 @@
-# yarpc - yet another RPC
+# jarpc - just another RPC
 # Copyright (C) 2019  Eugene Ershov
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,13 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .enums import StatusCode
-from .client import Client
-from .server import Server
-from .slient import Slient
-from .request import Request
-from .response import Response
 
-__version__ = "0.3.0a0"
-__author__ = "Eugene Ershov"
-__all__ = ("StatusCode", "Client", "Server", "Slient", "Request", "Response")
+class RPCError(Exception):
+    """Base class for all library errors."""
+
+
+class RPCParsingError(RPCError):
+    """Base class for payload parsing errors."""

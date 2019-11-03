@@ -4,7 +4,7 @@ import asyncio
 
 from typing import Any
 
-from yarpc import Client, Server, Request
+from jarpc import Client, Server, Request
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379

@@ -1,6 +1,6 @@
 import asyncio
 
-from yarpc import Client
+from jarpc import Client
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379

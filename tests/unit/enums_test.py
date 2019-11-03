@@ -1,4 +1,4 @@
-from yarpc import StatusCode
+from jarpc import StatusCode
 
 all_enumaration_types = [
     StatusCode.SUCCESS,

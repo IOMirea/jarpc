@@ -1,4 +1,4 @@
-Welcome to yarpc's documentation!
+Welcome to jarpc's documentation!
 =================================
 
 .. include:: intro.rst
@@ -8,7 +8,7 @@ Welcome to yarpc's documentation!
    :caption: Contents:
 
    intro
-   yarpc
+   jarpc
 
 
 Indices and tables
