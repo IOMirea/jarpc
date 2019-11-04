@@ -54,12 +54,12 @@ jobs:
         - make isort-check
         - make mypy
 
-    - name: Dist check
+    - name: Dist
       python: *default_py
       install:
         - pip install -r requirements/wheels.txt
       script:
-        - make dist-check
+        - make dist
 
     - stage: test
       os: windows
@@ -80,3 +80,13 @@ jobs:
         - pip install .
       script:
         - make examples
+
+deploy:
+  edge: true
+
+  provider: pypi
+  username: Fogapod
+  twine_check: false
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true

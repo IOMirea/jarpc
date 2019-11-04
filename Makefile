@@ -52,8 +52,8 @@ $(EXAMPLES):
 ci-test: .pytest-version
 	pytest --cov --cov-report=xml -v
 
-.PHONY: dist-check
-dist-check: .twine-version
+.PHONY: dist
+dist: .twine-version
 	$(PYTHON) setup.py check -ms
 	$(PYTHON) setup.py sdist bdist_wheel
 	twine check dist/*
@@ -99,7 +99,7 @@ help:
 	@echo '  ci-test       intended for Travis. runs tests and coverage'
 	@echo '  clean         cleans working directory'
 	@echo '  create-env    creates a virtualenv'
-	@echo '  dist-check    builds dist wheels and runs twine checks'
+	@echo '  dist          builds dist wheels and runs twine check'
 	@echo '  examples      runs examples'
 	@echo '  install       installs all pre-requisites to run tests and coverage'
 	@echo '  isort         runs isort'
