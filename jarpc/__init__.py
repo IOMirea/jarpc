@@ -21,6 +21,6 @@ from .slient import Slient
 from .request import Request
 from .response import Response
 
-__version__ = "0.3.1"
+__version__ = "0.3.2a0"
 __author__ = "Eugene Ershov"
 __all__ = ("StatusCode", "Client", "Server", "Slient", "Request", "Response")
