@@ -1,4 +1,4 @@
-# yarpc - yet another RPC
+# jarpc - just another RPC
 # Copyright (C) 2019  Eugene Ershov
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,18 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from enum import Enum
+from .enums import StatusCode
+from .client import Client
+from .server import Server
+from .slient import Slient
+from .request import Request
+from .response import Response
 
-
-class StatusCode(Enum):
-    SUCCESS = 0
-    BAD_FORMAT = 1
-    UNKNOWN_COMMAND = 2
-    BAD_PARAMS = 3
-    INTERNAL_ERROR = 4
-
-
-class MessageType(Enum):
-    UNKNOWN_TYPE = 0
-    REQUEST = 1
-    RESPONSE = 2
+__version__ = "0.3.0a0"
+__author__ = "Eugene Ershov"
+__all__ = ("StatusCode", "Client", "Server", "Slient", "Request", "Response")

@@ -2,7 +2,7 @@ PYTHON ?= python3
 PIP ?= pip
 
 # TODO: check examples with some linters (no mypy?)
-SOURCES = yarpc examples setup.py
+SOURCES = jarpc examples setup.py
 
 # TODO: this is hardcoded examples list, but it should be dynamic.
 # the reason for this is that some examples run forever currently.
@@ -27,7 +27,7 @@ test: .pytest-version
 
 .PHONY: open-report
 open-report: .clean-cov .pytest-version
-	pytest --cov=yarpc --cov-report=term-missing --cov-report=html
+	pytest --cov=jarpc --cov-report=term-missing --cov-report=html
 	open file://`pwd`/htmlcov/index.html
 
 .clean-cov:
@@ -37,7 +37,7 @@ open-report: .clean-cov .pytest-version
 .PHONY: clean
 clean: .clean-cov
 	rm -rf docs/_build
-	rm -rf build dist yarpc.egg-info
+	rm -rf build dist jarpc.egg-info
 	rm -rf .mypy_cache
 	rm -rf .pytest_cache
 

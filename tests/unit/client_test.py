@@ -1,4 +1,4 @@
-from yarpc import Client
+from jarpc import Client
 
 
 def test_creation():

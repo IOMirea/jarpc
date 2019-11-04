@@ -4,50 +4,50 @@ API Documentation
 Submodules
 ----------
 
-yarpc.client module
+jarpc.client module
 -------------------
 
-.. automodule:: yarpc.client
+.. automodule:: jarpc.client
     :members:
     :undoc-members:
     :show-inheritance:
 
-yarpc.server module
+jarpc.server module
 -------------------
 
-.. automodule:: yarpc.server
+.. automodule:: jarpc.server
     :members:
     :undoc-members:
     :show-inheritance:
 
-yarpc.slient module
+jarpc.slient module
 -------------------
 
-.. automodule:: yarpc.slient
+.. automodule:: jarpc.slient
     :members:
     :undoc-members:
     :show-inheritance:
 
-yarpc.abc module
+jarpc.abc module
 ----------------
 
-.. automodule:: yarpc.abc
+.. automodule:: jarpc.abc
     :members:
     :undoc-members:
     :show-inheritance:
 
-yarpc.request module
+jarpc.request module
 --------------------
 
-.. automodule:: yarpc.request
+.. automodule:: jarpc.request
     :members:
     :undoc-members:
     :show-inheritance:
 
-yarpc.response module
+jarpc.response module
 ---------------------
 
-.. automodule:: yarpc.response
+.. automodule:: jarpc.response
     :members:
     :undoc-members:
     :show-inheritance:

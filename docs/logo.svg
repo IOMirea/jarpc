@@ -9,21 +9,18 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.2"
-   width="124.24892mm"
-   height="29.254671mm"
-   viewBox="0 0 12424.893 2925.4671"
+   width="119.08316mm"
+   height="38.068859mm"
+   viewBox="0 0 11908.316 3806.8859"
    preserveAspectRatio="xMidYMid"
    xml:space="preserve"
    id="svg148"
-   sodipodi:docname="yarpc.svg"
+   sodipodi:docname="jarpc.svg"
    style="fill-rule:evenodd;stroke-width:28.22200012;stroke-linejoin:round"
-   inkscape:version="0.92.4 (unknown)"
-   inkscape:export-filename="/home/jens/Documents/yarpc.png"
-   inkscape:export-xdpi="94.452255"
-   inkscape:export-ydpi="94.452255"><metadata
+   inkscape:version="0.92.4 (unknown)"><metadata
    id="metadata152"><rdf:RDF><cc:Work
        rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><sodipodi:namedview
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><sodipodi:namedview
    pagecolor="#ffffff"
    bordercolor="#666666"
    borderopacity="1"
@@ -36,13 +33,9 @@
    inkscape:window-height="1026"
    id="namedview150"
    showgrid="false"
-   fit-margin-left="0"
-   fit-margin-top="0"
-   fit-margin-right="0"
-   fit-margin-bottom="0"
-   inkscape:zoom="2.3786088"
-   inkscape:cx="219.4765"
-   inkscape:cy="43.212335"
+   inkscape:zoom="1.6819304"
+   inkscape:cx="217.14632"
+   inkscape:cy="-34.005539"
    inkscape:window-x="0"
    inkscape:window-y="0"
    inkscape:window-maximized="1"
@@ -94,19 +87,19 @@
    d="M 0,0 L 2047,0 2047,2047 0,2047 0,0 Z"
    id="missing-glyph12" />
    <glyph
-   unicode="y"
-   horiz-adv-x="927"
-   d="M 244,817 L 213,950 10,940 356,0 C 268,-135 154,-203 -39,-240 L -45,-262 C -20,-309 10,-352 51,-391 L 70,-391 C 330,-322 467,-199 555,49 L 877,944 690,944 659,797 459,221 442,221 244,817 Z"
-   id="glyph14" />
-   <glyph
    unicode="r"
    horiz-adv-x="557"
    d="M 616,946 C 535,946 436,901 358,760 L 344,760 346,948 147,930 160,395 145,0 354,0 340,414 342,549 C 414,690 485,748 569,748 588,748 616,745 645,737 L 668,743 668,942 C 653,944 633,946 616,946 Z"
-   id="glyph16" />
+   id="glyph14" />
    <glyph
    unicode="p"
    horiz-adv-x="848"
    d="M 604,954 C 510,926 446,889 358,813 L 344,813 346,948 145,930 158,395 145,-379 352,-379 346,-2 C 401,-12 455,-18 506,-18 799,-18 971,166 971,500 971,784 846,954 604,954 Z M 522,125 C 465,125 406,139 344,170 L 340,414 342,664 C 426,750 498,786 569,786 700,786 772,672 774,473 778,233 676,125 522,125 Z"
+   id="glyph16" />
+   <glyph
+   unicode="j"
+   horiz-adv-x="424"
+   d="M 274,1384 C 201,1384 156,1337 156,1266 156,1194 197,1151 268,1151 338,1151 383,1198 383,1272 383,1341 344,1384 274,1384 Z M 406,944 L 399,948 205,940 16,940 6,821 20,807 201,807 209,395 207,37 C 207,-121 158,-205 18,-283 L 18,-305 94,-397 C 315,-291 401,-170 401,45 L 391,414 406,944 Z"
    id="glyph18" />
    <glyph
    unicode="c"
@@ -217,7 +210,7 @@
    id="defs63" />
  <g
    id="g68"
-   transform="translate(-739.50732,-1880.9148)">
+   transform="translate(-2155.1377,-2013.5593)">
   <g
    id="id2"
    class="Master_Slide">
@@ -232,7 +225,7 @@
  <g
    class="SlideGroup"
    id="g146"
-   transform="translate(-2186.7531,-2887.6945)">
+   transform="translate(-2155.1377,-2013.5593)">
   <g
    id="g144">
    <g
@@ -270,10 +263,9 @@
        y="4935"
        id="tspan76"><tspan
          id="tspan72"
-         style="fill:#000000;stroke:none">ya</tspan><tspan
+         style="fill:#000000;stroke:none">ja</tspan><tspan
          id="tspan74"
          style="fill:#ffcc00;stroke:none">rpc</tspan></tspan></tspan></text>
-
 
        </g>
       </g>

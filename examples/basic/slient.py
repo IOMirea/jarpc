@@ -1,7 +1,7 @@
 import os
 import asyncio
 
-from yarpc import Slient, Request
+from jarpc import Slient, Request
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
