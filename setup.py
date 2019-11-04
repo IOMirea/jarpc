@@ -33,6 +33,7 @@ setuptools.setup(
     install_requires=install_requires,
     python_requires=">=3.6",
     packages=setuptools.find_packages(),
+    package_data={"jarpc": ["py.typed"]},
     license="GPLv3",
     classifiers=[
         "Development Status :: 3 - Alpha",
