@@ -4,7 +4,7 @@
 
 jarpc - Just another python RPC library based on redis pubsub. It is built with [aioredis](https://github.com/aio-libs/aioredis).
 
-<img src="https://raw.githubusercontent.com/IOMirea/jarpc/master/docs/logo.png" height="100">
+<img src="https://raw.github.com/IOMirea/jarpc/master/docs/_static/img/jarpc_small.svg?sanitize=true" height="100">
 
 [![Documentation Status](https://readthedocs.org/projects/jarpc/badge/?version=latest)](https://jarpc.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://travis-ci.org/IOMirea/jarpc.svg?branch=master)](https://travis-ci.org/IOMirea/jarpc)
