@@ -22,7 +22,8 @@ jarpc - Just another python RPC library based on redis pubsub. It is built with 
 - encoding customization (marshal (default), json, msgpack, pickle, ...).
 
 ### Installation
-Library can be installed from repository: `pip install git+https://github.com/IOMirea/jarpc.git#egg=jarpc` (PyPI release soon)
+Library can be installed from PyPi: `pip install jarpc`
+Or from repository: `pip install git+https://github.com/IOMirea/jarpc.git#egg=jarpc`
 
 ### Examples
 

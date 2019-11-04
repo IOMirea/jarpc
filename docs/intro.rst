@@ -15,9 +15,9 @@ jarpc requires a Python version of 3.6 or higher.
 Installing
 ----------
 
-We currently only support installing directly from GitHub: ::
+Installation from PyPi: ::
 
-    pip install git+https://github.com/IOMirea/jarpc
+    pip install jarpc
 
 You'll also need a working local installation of Redis.
 
