@@ -76,7 +76,7 @@ jobs:
         - make examples
 
     - stage: deploy
-      if: (branch = master) AND (tag IS present)
+      if: tag IS present
       python: *default_py
       install:
         - pip install -r requirements/wheels.txt
