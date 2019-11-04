@@ -4,11 +4,11 @@
 
 jarpc - Just another python RPC library based on redis pubsub. It is built with [aioredis](https://github.com/aio-libs/aioredis).
 
-<img src="https://raw.github.com/IOMirea/jarpc/master/docs/logo.svg?sanitize=true" height="100">
+<img src="https://raw.github.com/IOMirea/jarpc/0.3.x/docs/logo.svg?sanitize=true" height="100">
 
-[![Documentation Status](https://readthedocs.org/projects/jarpc/badge/?version=latest)](https://jarpc.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.org/IOMirea/jarpc.svg?branch=master)](https://travis-ci.org/IOMirea/jarpc)
-[![codecov](https://codecov.io/gh/IOMirea/jarpc/branch/master/graph/badge.svg)](https://codecov.io/gh/IOMirea/jarpc)
+[![Documentation Status](https://readthedocs.org/projects/jarpc/badge/?version=0.3.x)](https://jarpc.readthedocs.io/en/0.3.x/?badge=0.3.x)
+[![Build Status](https://travis-ci.org/IOMirea/jarpc.svg?branch=0.3.x)](https://travis-ci.org/IOMirea/jarpc)
+[![codecov](https://codecov.io/gh/IOMirea/jarpc/branch/0.3.x/graph/badge.svg)](https://codecov.io/gh/IOMirea/jarpc)
 
 ### Features
 - `Client`, `Server` and `Slient` connection modes.
