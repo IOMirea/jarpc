@@ -22,7 +22,7 @@ import logging
 from typing import Any, Dict, List, Optional, Generator
 
 from .abc import ABCClient, ResponsesIterator
-from .typing import TypedQueue
+from .types import TypedQueue
 from .response import Response
 from .connection import Connection
 

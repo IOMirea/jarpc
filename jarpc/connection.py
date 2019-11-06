@@ -25,7 +25,7 @@ import aioredis
 
 from .abc import ABCConnection
 from .enums import MessageType
-from .typing import Serializer, Deserializer
+from .types import Serializer, Deserializer
 from .request import Request
 from .response import Response
 
