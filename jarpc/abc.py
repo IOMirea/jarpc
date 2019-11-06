@@ -19,7 +19,7 @@ import abc
 from typing import Any, Dict, List, Tuple, Union, Optional, Generator
 
 from .enums import StatusCode
-from .typing import CommandType
+from .types import CommandType
 from .response import Response
 
 __all__ = ("ResponsesIterator", "ABCConnection", "ABCClient", "ABCServer")

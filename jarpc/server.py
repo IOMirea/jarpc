@@ -20,7 +20,7 @@ from typing import Any, Dict, Callable, Optional
 
 from .abc import ABCServer
 from .enums import StatusCode
-from .typing import CommandType
+from .types import CommandType
 from .request import Request
 from .constants import NoValue
 from .connection import Connection
