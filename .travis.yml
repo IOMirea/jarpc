@@ -1,5 +1,6 @@
 version: ~> 1.0
 
+os: linux
 dist: bionic
 language: python
 
@@ -17,7 +18,7 @@ python:
 stages:
   - lint
   - test
-  - examples
+  - deploy
 
 cache:
   pip: true
@@ -39,7 +40,7 @@ after_script:
 jobs:
   fast_finish: true
   allow_failures:
-    - nightly
+    - python: nightly
 
   include:
     - stage: lint
@@ -53,16 +54,10 @@ jobs:
         - make isort-check
         - make mypy
 
-    - name: Dist check
-      python: *default_py
-      install:
-        - pip install -r requirements/wheels.txt
-      script:
-        - make dist-check
-
     - stage: test
       os: windows
       language: shell
+      name: Python 3.8 on Windows
       before_install:
         - choco install python
         - python -m pip install --upgrade pip
@@ -73,9 +68,18 @@ jobs:
       os: linux
       dist: xenial  # pypy 7-3.6 is not yet supported on bionic in travis
 
-    - stage: examples
-      python: *default_py
+    - python: *default_py
+      name: Examples
       install:
         - pip install .
       script:
         - make examples
+
+    - stage: deploy
+      if: tag IS present
+      python: *default_py
+      install:
+        - pip install -r requirements/wheels.txt
+      script:
+        - make dist
+        - twine upload -u Fogapod -p $PYPI_PASSWORD dist/*
