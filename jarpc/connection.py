@@ -91,10 +91,10 @@ class Connection(ABCConnection):
         first_connection = True
 
         while not self._closed:
-            first_connection = False
-
-            if first_connection:
+            if not first_connection:
                 log.warn("attempting to reconnect, messages will be lost")
+            else:
+                first_connection = False
 
             try:
                 self._sub = await pool.acquire()
