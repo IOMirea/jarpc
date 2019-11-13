@@ -70,22 +70,23 @@ class Connection(ABCConnection):
     ) -> None:
         """Starts processing messages."""
 
-        self._sub = await aioredis.create_redis(
+        self._sub = await aioredis.create_connection(
             redis_address, loop=self._loop, **kwargs
         )
-        self._pub = await aioredis.create_redis(
+        self._pub = await aioredis.create_connection(
             redis_address, loop=self._loop, **kwargs
         )
 
-        channels = await self._sub.subscribe(self._name)
-        assert len(channels) == 1
+        await self._sub.execute_pubsub("SUBSCRIBE", self._name)
 
         self._ready.set()
 
         log.info(f"sub: connected: {self._name}")
         log.info(f"pub: connected: {self._name}")
 
-        await self._handler(channels[0])
+        await self._handler(self._sub.pubsub_channels[self._name.encode()])
+
+        log.debug("exited handler")
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -101,7 +102,9 @@ class Connection(ABCConnection):
         await self._ready.wait()
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
-        async for msg in channel.iter():
+        while await channel.wait_message():
+            msg = await channel.get()
+
             # TODO: parser
             message_type_byte = msg[0:1]
             msg_type = _payload_value_to_type.get(
@@ -171,7 +174,7 @@ class Connection(ABCConnection):
 
         encoded = pl_type + encoded
 
-        num_listeners = await self._pub.publish(self._name, encoded)
+        num_listeners = await self._pub.execute("PUBLISH", self._name, encoded)
         log.debug(f"delivered to {num_listeners} listeners")
 
     def close(self) -> None:
