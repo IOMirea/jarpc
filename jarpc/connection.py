@@ -38,7 +38,17 @@ _payload_type_to_value = {v: k for k, v in _payload_value_to_type.items()}
 
 class Connection(ABCConnection):
 
-    __slots__ = ("_name", "_node" "_loop", "_ready", "_loads", "_dumps", "_sub", "_pub")
+    __slots__ = (
+        "_name",
+        "_node" "_loop",
+        "_ready",
+        "_loads",
+        "_dumps",
+        "_sub",
+        "_pub",
+        "_reconnect",
+        "_closed",
+    )
 
     def __init__(
         self,
@@ -47,9 +57,11 @@ class Connection(ABCConnection):
         dumps: Optional[Serializer] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
+        reconnect: bool = True,
     ):
         self._name = f"rpc:{name}"
         self._node = uuid.uuid4().hex if node is None else node
+        self._reconnect = reconnect
 
         self._loop = asyncio.get_event_loop() if loop is None else loop
         self._ready = asyncio.Event()
@@ -65,27 +77,53 @@ class Connection(ABCConnection):
         else:
             raise ValueError("You cannot define only one of dumps and loads.")
 
+        self._closed = False
+
     async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
         """Starts processing messages."""
 
-        self._sub = await aioredis.create_redis(
-            redis_address, loop=self._loop, **kwargs
-        )
-        self._pub = await aioredis.create_redis(
-            redis_address, loop=self._loop, **kwargs
+        pool = await aioredis.create_pool(
+            redis_address, loop=self._loop, minsize=2, maxsize=2, **kwargs
         )
 
-        channels = await self._sub.subscribe(self._name)
-        assert len(channels) == 1
+        first_connection = True
 
-        self._ready.set()
+        while not self._closed:
+            first_connection = False
 
-        log.info(f"sub: connected: {self._name}")
-        log.info(f"pub: connected: {self._name}")
+            if first_connection:
+                log.warn("attempting to reconnect, messages will be lost")
 
-        await self._handler(channels[0])
+            try:
+                self._sub = await pool.acquire()
+                self._pub = await pool.acquire()
+            except (aioredis.ConnectionClosedError, OSError):
+                if not self._reconnect:
+                    raise
+
+                # TODO: exponential time
+                # messages are lost during reconnects
+                log.debug("connection closed, attempting to reconnect after 2 seconds")
+
+                await asyncio.sleep(2)
+
+                continue
+
+            await self._sub.execute_pubsub("SUBSCRIBE", self._name)
+
+            self._ready.set()
+
+            log.info(f"sub: connected: {self._name}")
+            log.info(f"pub: connected: {self._name}")
+
+            await self._handler(self._sub.pubsub_channels[self._name.encode()])
+
+            log.debug("sub: connection lost")
+
+            pool.release(self._sub)
+            pool.release(self._pub)
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -101,7 +139,9 @@ class Connection(ABCConnection):
         await self._ready.wait()
 
     async def _handler(self, channel: aioredis.pubsub.Channel) -> None:
-        async for msg in channel.iter():
+        while await channel.wait_message():
+            msg = await channel.get()
+
             # TODO: parser
             message_type_byte = msg[0:1]
             msg_type = _payload_value_to_type.get(
@@ -171,7 +211,7 @@ class Connection(ABCConnection):
 
         encoded = pl_type + encoded
 
-        num_listeners = await self._pub.publish(self._name, encoded)
+        num_listeners = await self._pub.execute("PUBLISH", self._name, encoded)
         log.debug(f"delivered to {num_listeners} listeners")
 
     def close(self) -> None:
@@ -180,6 +220,8 @@ class Connection(ABCConnection):
         log.info("closing connections")
 
         self._ready.clear()
+
+        self._closed = True
 
         self._sub.close()
         self._pub.close()
