@@ -38,7 +38,17 @@ _payload_type_to_value = {v: k for k, v in _payload_value_to_type.items()}
 
 class Connection(ABCConnection):
 
-    __slots__ = ("_name", "_node" "_loop", "_ready", "_loads", "_dumps", "_sub", "_pub")
+    __slots__ = (
+        "_name",
+        "_node" "_loop",
+        "_ready",
+        "_loads",
+        "_dumps",
+        "_sub",
+        "_pub",
+        "_reconnect",
+        "_closed",
+    )
 
     def __init__(
         self,
@@ -47,9 +57,11 @@ class Connection(ABCConnection):
         dumps: Optional[Serializer] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
+        reconnect: bool = True,
     ):
         self._name = f"rpc:{name}"
         self._node = uuid.uuid4().hex if node is None else node
+        self._reconnect = reconnect
 
         self._loop = asyncio.get_event_loop() if loop is None else loop
         self._ready = asyncio.Event()
@@ -65,28 +77,45 @@ class Connection(ABCConnection):
         else:
             raise ValueError("You cannot define only one of dumps and loads.")
 
+        self._closed = False
+
     async def start(
         self, redis_address: Union[Tuple[str, int], str], **kwargs: Any
     ) -> None:
         """Starts processing messages."""
 
-        self._sub = await aioredis.create_connection(
-            redis_address, loop=self._loop, **kwargs
-        )
-        self._pub = await aioredis.create_connection(
-            redis_address, loop=self._loop, **kwargs
+        pool = await aioredis.create_pool(
+            redis_address, loop=self._loop, minsize=2, maxsize=2, **kwargs
         )
 
-        await self._sub.execute_pubsub("SUBSCRIBE", self._name)
+        while not self._closed:
+            try:
+                self._sub = await pool.acquire()
+                self._pub = await pool.acquire()
+            except (aioredis.ConnectionClosedError, OSError):
+                if not self._reconnect:
+                    raise
 
-        self._ready.set()
+                # TODO: exponential time
+                log.debug("connection closed, attempting to reconnect after 5 seconds")
 
-        log.info(f"sub: connected: {self._name}")
-        log.info(f"pub: connected: {self._name}")
+                await asyncio.sleep(5)
 
-        await self._handler(self._sub.pubsub_channels[self._name.encode()])
+                continue
 
-        log.debug("exited handler")
+            await self._sub.execute_pubsub("SUBSCRIBE", self._name)
+
+            self._ready.set()
+
+            log.info(f"sub: connected: {self._name}")
+            log.info(f"pub: connected: {self._name}")
+
+            await self._handler(self._sub.pubsub_channels[self._name.encode()])
+
+            log.debug("sub: connection lost")
+
+            pool.release(self._sub)
+            pool.release(self._pub)
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -183,6 +212,8 @@ class Connection(ABCConnection):
         log.info("closing connections")
 
         self._ready.clear()
+
+        self._closed = True
 
         self._sub.close()
         self._pub.close()
