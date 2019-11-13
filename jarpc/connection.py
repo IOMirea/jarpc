@@ -88,7 +88,14 @@ class Connection(ABCConnection):
             redis_address, loop=self._loop, minsize=2, maxsize=2, **kwargs
         )
 
+        first_connection = True
+
         while not self._closed:
+            first_connection = False
+
+            if first_connection:
+                log.warn("attempting to reconnect, messages will be lost")
+
             try:
                 self._sub = await pool.acquire()
                 self._pub = await pool.acquire()
@@ -97,9 +104,10 @@ class Connection(ABCConnection):
                     raise
 
                 # TODO: exponential time
-                log.debug("connection closed, attempting to reconnect after 5 seconds")
+                # messages are lost during reconnects
+                log.debug("connection closed, attempting to reconnect after 2 seconds")
 
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
 
                 continue
 
