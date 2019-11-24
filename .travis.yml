@@ -82,4 +82,4 @@ jobs:
         - pip install -r requirements/wheels.txt
       script:
         - make dist
-        - twine upload -u Fogapod -p $PYPI_PASSWORD dist/*
+        - twine upload -u $PYPY_USER -p $PYPI_PASSWORD dist/*
