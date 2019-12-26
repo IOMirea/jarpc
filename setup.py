@@ -6,6 +6,7 @@ import setuptools  # type: ignore
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
+
 init_py = os.path.join(os.path.dirname(__file__), "jarpc", "__init__.py")
 
 with open(init_py) as f:
@@ -22,7 +23,7 @@ with open(init_py) as f:
     except IndexError:
         raise RuntimeError(f"Unable to find author in {init_py}")
 
-install_requires = ["aioredis"]
+install_requires = ["aioredis", "ply"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",

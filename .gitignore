@@ -63,3 +63,8 @@ pip-wheel-metadata/
 
 # Docs
 _build/
+
+# ply
+lextab.py
+parsetab.py
+parser.out
