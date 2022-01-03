@@ -14,17 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import time
-import uuid
 import asyncio
 import logging
+import time
+import uuid
 
-from typing import Any, Dict, List, Optional, Generator
+from typing import Any, Dict, Generator, List, Optional
 
 from .abc import ABCClient, ResponsesIterator
-from .types import TypedQueue
-from .response import Response
 from .connection import Connection
+from .response import Response
+from .types import TypedQueue
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +87,7 @@ class ResponsesWithTimeout(ResponsesIterator):
 
         try:
             resp = await asyncio.wait_for(
-                self._queue.get(), timeout=self.time_remaining, loop=self._client._loop
+                self._queue.get(), timeout=self.time_remaining
             )
         except asyncio.TimeoutError:
             raise StopAsyncIteration
@@ -112,7 +112,11 @@ class ResponsesWithTimeout(ResponsesIterator):
         return self._timeout - time.time() + self._start_time
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} time_remaining={self.time_remaining} responses_seen={self.responses_seen}>"
+        return (
+            f"<{self.__class__.__name__} "
+            f"time_remaining={self.time_remaining} "
+            f"responses_seen={self.responses_seen}>"
+        )
 
 
 class EmptyResponses(ResponsesIterator):
@@ -175,7 +179,7 @@ class Client(Connection, ABCClient):
     def call(
         self,
         command_index: int,
-        data: Dict[str, Any] = {},
+        data: Optional[Dict[str, Any]] = None,
         timeout: Optional[float] = None,
         expect_responses: Optional[int] = None,
     ) -> ResponsesIterator:
@@ -186,6 +190,9 @@ class Client(Connection, ABCClient):
 
         log.info("sending command %d", command_index)
 
+        if data is None:
+            data = {}
+
         payload = {"n": self._node, "c": command_index, "d": data}
 
         if timeout is None:
@@ -195,18 +202,18 @@ class Client(Connection, ABCClient):
             address = uuid.uuid4().hex
             payload["a"] = address
 
-            queue: TypedQueue[Response] = TypedQueue(loop=self._loop)
+            queue: TypedQueue[Response] = TypedQueue()
             self._add_queue(address, queue)
 
-        self._loop.create_task(self._send_request(payload))
+        asyncio.create_task(self._send_request(payload))
 
         if timeout is None:
             return EmptyResponses()
-        else:
-            return ResponsesWithTimeout(
-                self,
-                queue,
-                address,
-                timeout,
-                expect_responses or self._default_expect_responses,
-            )
+
+        return ResponsesWithTimeout(
+            self,
+            queue,
+            address,
+            timeout,
+            expect_responses or self._default_expect_responses,
+        )

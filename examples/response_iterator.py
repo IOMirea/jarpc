@@ -1,7 +1,7 @@
-import random
 import asyncio
+import random
 
-from jarpc import Client, Server, Request
+from jarpc import Client, Request, Server
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -32,13 +32,11 @@ async def main() -> None:
         server.add_command(COMMAND_PING, random_ping)
 
     print(f"Starting 1 client and {NUM_SERVERS} servers")
-    loop = asyncio.get_event_loop()
-
     for i in (client, *servers):
-        loop.create_task(i.start((REDIS_HOST, REDIS_PORT)))
+        asyncio.create_task(i.start((REDIS_HOST, REDIS_PORT)))
 
-    await asyncio.wait(
-        (client.wait_until_ready(), *[s.wait_until_ready() for s in servers])
+    await asyncio.gather(
+        *[client.wait_until_ready(), *[s.wait_until_ready() for s in servers]]
     )
 
     print("Sending request")
@@ -47,5 +45,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    asyncio.run(main())

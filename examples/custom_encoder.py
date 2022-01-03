@@ -1,10 +1,10 @@
+import asyncio
 import json
 import pickle
-import asyncio
 
 from typing import Any
 
-from jarpc import Client, Server, Request
+from jarpc import Client, Request, Server
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -37,10 +37,8 @@ async def test_encoder(encoder: Any) -> None:
     server = Server("custom_encoder", loads=encoder.loads, dumps=encoder.dumps)
     server.add_command(COMMAND_PING, ping)
 
-    loop = asyncio.get_event_loop()
-
-    loop.create_task(client.start((REDIS_HOST, REDIS_PORT)))
-    loop.create_task(server.start((REDIS_HOST, REDIS_PORT)))
+    asyncio.create_task(client.start((REDIS_HOST, REDIS_PORT)))
+    asyncio.create_task(server.start((REDIS_HOST, REDIS_PORT)))
 
     await client.wait_until_ready()
     await server.wait_until_ready()
@@ -58,5 +56,4 @@ async def test_encoder(encoder: Any) -> None:
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    asyncio.run(main())

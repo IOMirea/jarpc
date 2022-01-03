@@ -16,7 +16,7 @@
 
 import asyncio
 
-from typing import Any, Union, Generic, TypeVar, Callable
+from typing import Any, Callable, Generic, TypeVar, Union
 
 __all__ = ("Serializer", "Deserializer", "CommandType")
 

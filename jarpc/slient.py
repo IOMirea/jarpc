@@ -1,6 +1,6 @@
 from .client import Client
-from .server import Server
 from .request import Request
+from .server import Server
 
 
 class Slient(Client, Server):

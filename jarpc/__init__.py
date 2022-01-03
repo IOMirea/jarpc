@@ -14,13 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .enums import StatusCode
 from .client import Client
-from .server import Server
-from .slient import Slient
+from .enums import StatusCode
 from .request import Request
 from .response import Response
+from .server import Server
+from .slient import Slient
 
 __version__ = "0.4.0a0"
 __author__ = "Eugene Ershov"
-__all__ = ("StatusCode", "Client", "Server", "Slient", "Request", "Response")
+__all__ = (
+    "StatusCode",
+    "Client",
+    "Server",
+    "Slient",
+    "Request",
+    "Response",
+)

@@ -1,7 +1,7 @@
-import os
 import asyncio
+import os
 
-from jarpc import Server, Request
+from jarpc import Request, Server
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
@@ -18,7 +18,7 @@ async def ping(req: Request, message: str = "") -> str:
 
     print("Received PING command")
 
-    return "pong" if message == "" else message
+    return message or "pong"
 
 
 @server.command(COMMAND_SLOW_PING)

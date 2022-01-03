@@ -16,14 +16,14 @@
 
 import logging
 
-from typing import Any, Dict, Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 from .abc import ABCServer
-from .enums import StatusCode
-from .types import CommandType
-from .request import Request
-from .constants import NoValue
 from .connection import Connection
+from .constants import NoValue
+from .enums import StatusCode
+from .request import Request
+from .types import CommandType
 
 log = logging.getLogger(__name__)
 

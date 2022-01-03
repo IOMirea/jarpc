@@ -1,18 +1,15 @@
-import os
 import asyncio
+import os
 
-from jarpc import Slient, Request
+from jarpc import Request, Slient
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
 
 COMMAND_PING = 0
 
-loop = asyncio.get_event_loop()
-
 slient = Slient(
     "example",
-    loop=loop,
     node=f"example-{os.getpid()}",
     default_timeout=5,
     default_expect_responses=1,
@@ -25,7 +22,7 @@ async def ping(req: Request, message: str = "") -> str:
 
     print("Received PING command")
 
-    return "pong" if message == "" else message
+    return message or "pong"
 
 
 async def call_ping(slient: Slient) -> None:
@@ -35,6 +32,7 @@ async def call_ping(slient: Slient) -> None:
 
 
 if __name__ == "__main__":
+    loop = asyncio.new_event_loop()
     loop.create_task(slient.start((REDIS_HOST, REDIS_PORT)))
     loop.create_task(call_ping(slient))
 

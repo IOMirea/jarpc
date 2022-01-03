@@ -63,3 +63,6 @@ pip-wheel-metadata/
 
 # Docs
 _build/
+
+# redis database
+*.rdb

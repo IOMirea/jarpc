@@ -16,13 +16,18 @@
 
 import abc
 
-from typing import Any, Dict, List, Tuple, Union, Optional, Generator
+from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
 from .enums import StatusCode
-from .types import CommandType
 from .response import Response
+from .types import CommandType
 
-__all__ = ("ResponsesIterator", "ABCConnection", "ABCClient", "ABCServer")
+__all__ = (
+    "ResponsesIterator",
+    "ABCConnection",
+    "ABCClient",
+    "ABCServer",
+)
 
 
 class ResponsesIterator(abc.ABC):
@@ -30,7 +35,7 @@ class ResponsesIterator(abc.ABC):
     Provides access to command responses.
 
     Instances can be awaited to get all responses at once or used as async iterator to
-    process responses as soon as they come.
+    process responses as soon as they arrive.
     """
 
     @abc.abstractmethod
@@ -75,7 +80,7 @@ class ABCClient(ABCConnection):
     def call(
         self,
         command_index: int,
-        data: Dict[str, Any] = {},
+        data: Optional[Dict[str, Any]] = None,
         timeout: Optional[float] = None,
         expect_responses: int = 0,
     ) -> ResponsesIterator:

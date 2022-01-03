@@ -43,4 +43,7 @@ class Response:
         return str(self.data)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} status={self.status} node={self.node} data={self.data}>"
+        return (
+            f"<{self.__class__.__name__} status={self.status} "
+            f"node={self.node} data={self.data}>"
+        )

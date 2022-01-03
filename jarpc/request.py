@@ -19,8 +19,8 @@ import warnings
 from typing import Any, Dict, Optional
 
 from .abc import ABCServer
-from .enums import StatusCode
 from .constants import NoValue
+from .enums import StatusCode
 
 
 class Request:
@@ -70,11 +70,13 @@ class Request:
     ) -> None:
         if self._reply_called:
             warnings.warn(
-                "Reply function was called already. Using it multiple times may cause problems"
+                "Reply function was called already. "
+                "Using it multiple times may cause side effects"
             )
         else:
             self._reply_called = True
-            await self.server.reply(address=self._address, data=data, status=status)
+
+        await self.server.reply(address=self._address, data=data, status=status)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} command_index={self.command_index}>"

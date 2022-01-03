@@ -22,16 +22,17 @@ with open(init_py) as f:
     except IndexError:
         raise RuntimeError(f"Unable to find author in {init_py}")
 
-install_requires = ["aioredis"]
+install_requires = ["aioredis<2.0"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Operating System :: OS Independent",
@@ -51,7 +52,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/IOMirea/jarpc",
     install_requires=install_requires,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     packages=setuptools.find_packages(),
     package_data={"jarpc": ["py.typed"]},
     license="GPLv3",

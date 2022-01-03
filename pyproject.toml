@@ -3,3 +3,10 @@ target-version = ['py37']
 skip-numeric-underscore-normalization = true
 exclude = '''
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+atomic = true
+combine_as_imports = true
+lines_between_types = 1

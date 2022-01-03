@@ -103,7 +103,7 @@ help:
 	@echo '  examples      runs examples'
 	@echo '  install       installs all pre-requisites to run tests and coverage'
 	@echo '  isort         runs isort'
-	@echo '  isort         runs isort (no formatting)'
+	@echo '  isort-check   runs isort (no formatting)'
 	@echo '  lint          runs flake8, black, mypy, & isort (no formatting)'
 	@echo '  test          checks coverage and opens html report'
 	@echo '  open-report   checks code coverage of all Python files'

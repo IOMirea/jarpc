@@ -15,19 +15,19 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import uuid
 import asyncio
 import logging
+import uuid
 
-from typing import Any, Tuple, Union, Mapping, Optional
+from typing import Any, Mapping, Optional, Tuple, Union
 
 import aioredis
 
 from .abc import ABCConnection
 from .enums import MessageType
-from .types import Serializer, Deserializer
 from .request import Request
 from .response import Response
+from .types import Deserializer, Serializer
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class Connection(ABCConnection):
 
     __slots__ = (
         "_name",
-        "_node" "_loop",
+        "_node",
         "_ready",
         "_loads",
         "_dumps",
@@ -55,15 +55,13 @@ class Connection(ABCConnection):
         name: str,
         loads: Optional[Deserializer] = None,
         dumps: Optional[Serializer] = None,
-        loop: Optional[asyncio.AbstractEventLoop] = None,
         node: Optional[str] = None,
         reconnect: bool = True,
     ):
-        self._name = f"rpc:{name}"
+        self._name = f"jarpc:{name}"
         self._node = uuid.uuid4().hex if node is None else node
         self._reconnect = reconnect
 
-        self._loop = asyncio.get_event_loop() if loop is None else loop
         self._ready = asyncio.Event()
 
         if loads and dumps:
@@ -84,9 +82,7 @@ class Connection(ABCConnection):
     ) -> None:
         """Starts processing messages."""
 
-        pool = await aioredis.create_pool(
-            redis_address, loop=self._loop, minsize=2, maxsize=2, **kwargs
-        )
+        pool = await aioredis.create_pool(redis_address, minsize=2, maxsize=2, **kwargs)
 
         first_connection = True
 
@@ -131,7 +127,7 @@ class Connection(ABCConnection):
         Takes same arguments as Connection.start.
         """
 
-        self._loop.run_until_complete(self.start(*args, **kwargs))
+        asyncio.run(self.start(*args, **kwargs))
 
     async def wait_until_ready(self) -> None:
         """Waits until connection is established."""
@@ -143,7 +139,7 @@ class Connection(ABCConnection):
             msg = await channel.get()
 
             # TODO: parser
-            message_type_byte = msg[0:1]
+            message_type_byte = msg[:1]
             msg_type = _payload_value_to_type.get(
                 message_type_byte, MessageType.UNKNOWN_TYPE
             )
@@ -158,7 +154,8 @@ class Connection(ABCConnection):
                 # await self._respond(request.address, StatusCode.BAD_FORMAT)
 
                 log.exception(
-                    "could not deserialize payload. Make sure to use same algorithm on both ends"
+                    "could not deserialize payload. "
+                    "Make sure to use same algorithm on both ends"
                 )
                 continue
 
@@ -185,12 +182,8 @@ class Connection(ABCConnection):
     async def _handle_request(self, request: Request) -> None:
         """Called for handling request. Overridable."""
 
-        pass
-
     async def _handle_response(self, response: Response) -> None:
         """Called for handling response. Overridable."""
-
-        pass
 
     async def _send_request(self, payload: Mapping[str, Any]) -> None:
         """Sends payload of request type."""
